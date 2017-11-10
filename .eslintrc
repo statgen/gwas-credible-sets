@@ -11,6 +11,10 @@
         "FunctionExpression": { "parameters": "first" },
         "CallExpression": { "arguments": "first" }
       }
+    ],
+    "object-curly-spacing": [
+        2,
+        "always"
     ]
   },
   "env": {

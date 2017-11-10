@@ -1,18 +1,18 @@
-import credibleSets from '../../src/credible-sets';
+import {greet} from '../../src/credible-sets';
 
 describe('credibleSets', () => {
     describe('Greet function', () => {
-        beforeEach(() => {
-            spy(credibleSets, 'greet');
-            credibleSets.greet();
+        beforeEach(function () {
+            this.greetSpy = spy(greet);
+            this.greetSpy();
         });
 
-        it('should have been run once', () => {
-            expect(credibleSets.greet).to.have.been.calledOnce;
+        it('should have been run once', function () {
+            expect(this.greetSpy).to.have.been.calledOnce;
         });
 
-        it('should have always returned hello', () => {
-            expect(credibleSets.greet).to.have.always.returned('hello');
+        it('should have always returned hello', function () {
+            expect(this.greetSpy).to.have.always.returned('hello');
         });
     });
 });

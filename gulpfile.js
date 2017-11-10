@@ -64,7 +64,7 @@ function build() {
             externals: {},
             module: {
                 loaders: [
-                    {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
+                    { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
                 ]
             },
             devtool: 'source-map'
@@ -72,14 +72,14 @@ function build() {
         .pipe(gulp.dest(destinationFolder))
         .pipe($.filter(['**', '!**/*.js.map']))
         .pipe($.rename(`${exportFileName}.min.js`))
-        .pipe($.sourcemaps.init({loadMaps: true}))
+        .pipe($.sourcemaps.init({ loadMaps: true }))
         .pipe($.uglify())
         .pipe($.sourcemaps.write('./'))
         .pipe(gulp.dest(destinationFolder));
 }
 
 function _mocha() {
-    return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], {read: false})
+    return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], { read: false })
         .pipe($.mocha({
             reporter: 'dot',
             globals: Object.keys(mochaGlobals.globals),
@@ -142,18 +142,18 @@ function testBrowser() {
             module: {
                 loaders: [
                     // This is what allows us to author in future JavaScript
-                    {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
+                    { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
                 ]
             },
             plugins: [
                 // By default, webpack does `n=>n` compilation with entry files. This concatenates
                 // them into a single chunk.
-                new webpack.optimize.LimitChunkCountPlugin({maxChunks: 1})
+                new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 })
             ],
             devtool: 'inline-source-map'
         }, null, () => {
             if (firstBuild) {
-                $.livereload.listen({port: 35729, host: 'localhost', start: true});
+                $.livereload.listen({ port: 35729, host: 'localhost', start: true });
                 gulp.watch(watchFiles, ['lint']);
             } else {
                 $.livereload.reload('./tmp/__spec-build.js');

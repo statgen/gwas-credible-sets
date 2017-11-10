@@ -1,7 +1,5 @@
-const credibleSets = {
-    greet() {
-        return 'hello';
-    }
+const greet = function() {
+    return 'hello';
 };
 
-export default credibleSets;
+export {greet};

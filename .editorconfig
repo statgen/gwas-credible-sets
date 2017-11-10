@@ -8,7 +8,7 @@ trim_trailing_whitespace = true
 # Ensure a newline at the end of each file
 insert_final_newline = true
 
-[*.js]
+[*.js, *.json]
 # Unix-style newlines
 end_of_line = lf
 charset = utf-8
