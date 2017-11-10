@@ -142,9 +142,7 @@ function testBrowser() {
             module: {
                 loaders: [
                     // This is what allows us to author in future JavaScript
-                    {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'},
-                    // This allows the test setup scripts to load `package.json`
-                    {test: /\.json$/, exclude: /node_modules/, loader: 'json-loader'}
+                    {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
                 ]
             },
             plugins: [
