@@ -1,0 +1,21 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "rules": {
+    "indent": [
+      2,
+      4,
+      {
+        "FunctionExpression": { "parameters": "first" },
+        "CallExpression": { "arguments": "first" }
+      }
+    ]
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "extends": "eslint:recommended"
+}

@@ -1,0 +1,25 @@
+{
+  "extends": "./setup/.globals.json",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
+  "rules": {
+    "strict": 0,
+    "quotes": [2, "single"],
+    "no-unused-expressions": 0,
+    "indent": [
+      2,
+      4,
+      {
+        "FunctionExpression": { "parameters": "first" },
+        "CallExpression": { "arguments": "first" }
+      }
+    ]
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true
+  }
+}
