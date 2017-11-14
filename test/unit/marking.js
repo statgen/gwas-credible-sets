@@ -74,11 +74,19 @@ describe('marking module', () => {
             assert.equal(numberTrue, 1, 'Only one result should be marked as in credible set');
             assert.isTrue(result[1]);
         });
-        it.skip('should correctly identify the credible set', () => {
-
+        it('should correctly identify the credible set', () => {
+            const scores = [.02, .05, 15, .01, 12, .03, 7, 6.9];
+            assert.sameOrderedMembers(
+                markCredibleSet(scores),
+                [false, false, true, false, true, false, true, true]
+            );
         });
-        it.skip('should respect varying cutoff values', () => {
-
+        it('should give a smaller credible set when cutoff is lower', () => {
+            const scores = [.02, .05, 15, .01, 12, .03, 7, 6.9];
+            assert.sameOrderedMembers(
+                markCredibleSet(scores, 0.80),
+                [false, false, true, false, true, false, true, false]
+            );
         });
     });
 });

@@ -51,6 +51,8 @@ describe('scoring module', () => {
         it('should return valid results as-is for moderate z2 values', () => {
             // These values can all be calculated directly without triggering a cap on exp(Z^2)
             // The actual values are from the same calc in R
+
+            // TODO: Fails in safari browser test runner due to very small floating point differences
             const nlogpvals = [.004, 8, 100, 155];
             assert.sameOrderedMembers(
                 minKodos(nlogpvals),

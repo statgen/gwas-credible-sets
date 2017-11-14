@@ -79,7 +79,7 @@ function build() {
 }
 
 function _mocha() {
-    return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], { read: false })
+    return gulp.src(['test/setup/node.js', 'test/unit/**/*.js', 'test/integration/**/*.js'], { read: false })
         .pipe($.mocha({
             reporter: 'dot',
             globals: Object.keys(mochaGlobals.globals),
@@ -122,8 +122,10 @@ function testBrowser() {
     // Our testing bundle is made up of our unit tests, which
     // should individually load up pieces of our application.
     // We also include the browser setup file.
-    const testFiles = glob.sync('./test/unit/**/*.js');
-    const allFiles = ['./test/setup/browser.js'].concat(testFiles);
+    const unitTestFiles = glob.sync('./test/unit/**/*.js');
+    const integrationTestFiles = glob.sync('./test/integration/**/*.js');
+    const allTests = unitTestFiles.concat(integrationTestFiles);
+    const allFiles = ['./test/setup/browser.js'].concat(allTests);
 
     // Lets us differentiate between the first build and subsequent builds
     var firstBuild = true;

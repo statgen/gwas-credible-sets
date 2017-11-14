@@ -32,6 +32,7 @@ describe('stats module', () => {
             });
         });
         it('should return correct results for various cases', () => {
+            // TODO: Test fails in safari browser test runner due to very slight floating point differences
             // "Actual" values are taken from qnorm function in R as an independent reference implementation
             const scenarios = [
                 [0.5, 0],
