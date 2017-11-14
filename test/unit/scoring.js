@@ -52,7 +52,8 @@ describe('scoring module', () => {
             // These values can all be calculated directly without triggering a cap on exp(Z^2)
             // The actual values are from the same calc in R
 
-            // TODO: Fails in safari browser test runner due to very small floating point differences
+            // TODO: Fails in safari browser test runner due to floating point differences. This is difficult to
+            //  coerce with a single closeTo tolerance due to the range of exponents involved
             const nlogpvals = [.004, 8, 100, 155];
             assert.sameOrderedMembers(
                 minKodos(nlogpvals),

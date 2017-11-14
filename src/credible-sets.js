@@ -8,6 +8,6 @@ import marking from './marking';
 // Then, submodules may be accessed as `window.credibleSets.stats`, etc
 
 // If you are using a real module system, please import from sub-modules directly- these global helpers are a bit of
-//  a hack any may go away in the future
+//  a hack and may go away in the future
 // TODO: Revisit, because exporting an aggregate this way might lose some of the benefits of real modules down the line
 export { scoring, stats, marking };

@@ -24,7 +24,7 @@ function markCredibleSet(statistics, cutoff=0.95) {
     // Sort the statistics by largest first, while preserving a map to original item order
     const sortedStatsMap = statistics
         .map((item, index) => [item, index])
-        .sort((a, b) => (a[0] < b[0]));
+        .sort((a, b) => (b[0] - a[0]));
 
     let runningTotal = 0;
     const result = new Array(sortedStatsMap.length).fill(false);

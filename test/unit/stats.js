@@ -3,9 +3,10 @@ import { ninv } from '../../src/stats';
 function _runScenarios (scenarios, method) {
     // Helper method for running tests
     scenarios.forEach(([input, expectedResult]) => {
-        assert.equal(
+        assert.closeTo(
             method(input),
             expectedResult,
+            0.00000001,
             `Calculation on ${input} did not produce the expected result`
         );
     });
@@ -32,7 +33,6 @@ describe('stats module', () => {
             });
         });
         it('should return correct results for various cases', () => {
-            // TODO: Test fails in safari browser test runner due to very slight floating point differences
             // "Actual" values are taken from qnorm function in R as an independent reference implementation
             const scenarios = [
                 [0.5, 0],
