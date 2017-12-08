@@ -1,3 +1,5 @@
+/** @module stats */
+
 /**
  * The inverse of the CDF. May be used to determine the z-score for the desired quantile
  *

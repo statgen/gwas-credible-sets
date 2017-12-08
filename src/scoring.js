@@ -1,3 +1,5 @@
+/** @module scoring */
+
 import { ninv } from './stats';
 
 

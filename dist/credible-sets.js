@@ -83,6 +83,8 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+/** @module stats */
+
 /**
  * The inverse of the CDF. May be used to determine the z-score for the desired quantile
  *
@@ -184,7 +186,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // TODO: Revisit, because exporting an aggregate this way might lose some of the benefits of real modules down the line
 exports.scoring = _scoring2.default;
 exports.stats = _stats2.default;
-exports.marking = _marking2.default;
+exports.marking = _marking2.default; /** @module credible-sets */
 
 /***/ }),
 /* 2 */
@@ -200,7 +202,7 @@ exports._nlogp_to_z2 = exports.minKodos = undefined;
 
 var _stats = __webpack_require__(0);
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /** @module scoring */
 
 /**
  * Convert a -logp value to Z^2
@@ -278,16 +280,17 @@ Object.defineProperty(exports, "__esModule", {
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
+/** @module marking */
+
 /**
- * Given a set of raw statistics, determine which of them lie above a specified cutoff and are therefore members of the
- *  credible set.
- * @param {Number[]} statistics Calculated statistics used to rank the credible set; these positions
- *  should map to the same array indices as `data`
- * @param {Number} [cutoff=0.95] Only mark values above this cutoff to be in the credible set
- * @return {boolean[]} An array of booleans tagging whether each provided statistic is a member of the credible set
+ * Given a set of probabilities, determine which contribute most to a sum, and are thus members of the credible set.
+ *   Return an array similar to `statistics`, but with non-set-member scores set to 0.
+  * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
+ * @return {Number[]} An array of numbers representing scores for items in the set (and zero for non-members)
  *  This array should be the same length as the provided statistic array
  */
-function markCredibleSet(statistics) {
+function findCredibleSet(statistics) {
     var cutoff = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.95;
 
     // Type checking
@@ -313,15 +316,16 @@ function markCredibleSet(statistics) {
     });
 
     var runningTotal = 0;
-    var result = new Array(sortedStatsMap.length).fill(false);
+    var result = new Array(sortedStatsMap.length).fill(0);
     for (var i = 0; i < sortedStatsMap.length; i++) {
         var _sortedStatsMap$i = _slicedToArray(sortedStatsMap[i], 2),
             value = _sortedStatsMap$i[0],
             index = _sortedStatsMap$i[1];
 
         if (runningTotal < cutoff) {
-            result[index] = true;
-            runningTotal += value / statsTotal;
+            var score = value / statsTotal;
+            result[index] = score;
+            runningTotal += score;
         } else {
             break;
         }
@@ -329,9 +333,54 @@ function markCredibleSet(statistics) {
     return result;
 }
 
-var rollup = { markCredibleSet: markCredibleSet };
+/**
+ * Analyze a set of probabilities and return booleans indicating which items contribute to the credible set
+ *
+ * This is a helper method for, eg, visualizing the members of the credible set by raw membership
+ *
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
+ * @return {Number[]} An array of booleans identifying whether or not each item is in the credible set
+ *  This array should be the same length as the provided statistic array
+ */
+function markCredibleSetBoolean(statistics) {
+    var cutoff = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.95;
+
+    var setMembers = findCredibleSet(statistics, cutoff);
+    return setMembers.map(function (item) {
+        return !!item;
+    });
+}
+
+/**
+ * Analyze a set of probabilities and return a fraction saying how much each item contributes to the credible set.
+ *   For example, if a single item accounts for 96% of total probabilities, then for the 95% credible set,
+ *   that item would be scaled to "1.0" (because it alone represents the entire credible set and then some)
+ *
+ * This is a helper method for, eg, visualizing the most relative significance of contributions to the credible set
+ *
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
+ * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for
+ *  This array should be the same length as the provided statistic array
+ */
+function markCredibleSetScaled(statistics) {
+    var cutoff = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.95;
+
+    var setMemberScores = findCredibleSet(statistics, cutoff);
+    var sumMarkers = setMemberScores.reduce(function (a, b) {
+        return a + b;
+    }, 0);
+    return setMemberScores.map(function (item) {
+        return item / sumMarkers;
+    });
+}
+
+var rollup = { findCredibleSet: findCredibleSet, markCredibleSetBoolean: markCredibleSetBoolean, markCredibleSetScaled: markCredibleSetScaled };
 exports.default = rollup;
-exports.markCredibleSet = markCredibleSet;
+exports.findCredibleSet = findCredibleSet;
+exports.markCredibleSetBoolean = markCredibleSetBoolean;
+exports.markCredibleSetScaled = markCredibleSetScaled;
 
 /***/ })
 /******/ ]);

@@ -1,3 +1,5 @@
+/** @module credible-sets */
+
 import stats from './stats';
 import scoring from './scoring';
 import marking from './marking';

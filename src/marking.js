@@ -1,13 +1,14 @@
+/** @module marking */
+
 /**
- * Given a set of raw statistics, determine which of them lie above a specified cutoff and are therefore members of the
- *  credible set.
- * @param {Number[]} statistics Calculated statistics used to rank the credible set; these positions
- *  should map to the same array indices as `data`
- * @param {Number} [cutoff=0.95] Only mark values above this cutoff to be in the credible set
- * @return {boolean[]} An array of booleans tagging whether each provided statistic is a member of the credible set
+ * Given a set of probabilities, determine which contribute most to a sum, and are thus members of the credible set.
+ *   Return an array similar to `statistics`, but with non-set-member scores set to 0.
+  * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
+ * @return {Number[]} An array of numbers representing scores for items in the set (and zero for non-members)
  *  This array should be the same length as the provided statistic array
  */
-function markCredibleSet(statistics, cutoff=0.95) {
+function findCredibleSet(statistics, cutoff=0.95) {
     // Type checking
     if (!Array.isArray(statistics) || !statistics.length) {
         throw 'Statistics must be a non-empty array';
@@ -27,13 +28,13 @@ function markCredibleSet(statistics, cutoff=0.95) {
         .sort((a, b) => (b[0] - a[0]));
 
     let runningTotal = 0;
-    const result = new Array(sortedStatsMap.length).fill(false);
+    const result = new Array(sortedStatsMap.length).fill(0);
     for (let i = 0; i < sortedStatsMap.length; i++) {
         let [value, index] = sortedStatsMap[i];
-
         if (runningTotal < cutoff) {
-            result[index] = true;
-            runningTotal += value / statsTotal;
+            const score = value / statsTotal;
+            result[index] = score;
+            runningTotal += score;
         } else {
             break;
         }
@@ -41,6 +42,39 @@ function markCredibleSet(statistics, cutoff=0.95) {
     return result;
 }
 
-const rollup = { markCredibleSet };
+/**
+ * Analyze a set of probabilities and return booleans indicating which items contribute to the credible set
+ *
+ * This is a helper method for, eg, visualizing the members of the credible set by raw membership
+ *
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
+ * @return {Number[]} An array of booleans identifying whether or not each item is in the credible set
+ *  This array should be the same length as the provided statistic array
+ */
+function markCredibleSetBoolean(statistics, cutoff=0.95) {
+    const setMembers = findCredibleSet(statistics, cutoff);
+    return setMembers.map(item => !!item);
+}
+
+/**
+ * Analyze a set of probabilities and return a fraction saying how much each item contributes to the credible set.
+ *   For example, if a single item accounts for 96% of total probabilities, then for the 95% credible set,
+ *   that item would be scaled to "1.0" (because it alone represents the entire credible set and then some)
+ *
+ * This is a helper method for, eg, visualizing the most relative significance of contributions to the credible set
+ *
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
+ * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for
+ *  This array should be the same length as the provided statistic array
+ */
+function markCredibleSetScaled(statistics, cutoff=0.95) {
+    const setMemberScores = findCredibleSet(statistics, cutoff);
+    const sumMarkers = setMemberScores.reduce((a, b) => a + b, 0);
+    return setMemberScores.map(item => item / sumMarkers);
+}
+
+const rollup = { findCredibleSet, markCredibleSetBoolean, markCredibleSetScaled };
 export default rollup;
-export { markCredibleSet };
+export { findCredibleSet, markCredibleSetBoolean, markCredibleSetScaled };
