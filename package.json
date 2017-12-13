@@ -12,6 +12,7 @@
     "test-browser": "gulp test-browser",
     "watch": "gulp watch",
     "build": "gulp build",
+    "docs": "jsdoc src/ README.md -d docs/",
     "coverage": "gulp coverage"
   },
   "repository": {
@@ -47,6 +48,7 @@
     "gulp-sourcemaps": "2.6.1",
     "gulp-uglify": "3.0.0",
     "isparta": "4.0.0",
+    "jsdoc": "^3.5.5",
     "mocha": "4.0.1",
     "sinon": "4.1.2",
     "sinon-chai": "2.14.0",

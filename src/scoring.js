@@ -4,7 +4,7 @@ import { ninv } from './stats';
 
 
 /**
- * Convert a -logp value to Z^2
+ * Convert a -logp value to Z^2.
  *
  * Very large -logp (very small p values) cannot be converted to z by a direct method. These values
  *  are handled using an approximation: for small p-values, Z_i^2 has a linear relationship with -log10 p-value.

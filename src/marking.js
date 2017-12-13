@@ -2,10 +2,11 @@
 
 /**
  * Given a set of probabilities, determine which contribute most to a sum, and are thus members of the credible set.
- *   Return an array similar to `statistics`, but with non-set-member scores set to 0.
-  * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ *   Return a mask of `statistics`, where values for non-set-members are set to 0.
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} An array of numbers representing scores for items in the set (and zero for non-members)
+ * @return {Number[]} A mask of the statistics array, showing the originally provided value for items in the credible
+ *  set, and zero for items not in the set.
  *  This array should be the same length as the provided statistic array
  */
 function findCredibleSet(statistics, cutoff=0.95) {
@@ -43,14 +44,14 @@ function findCredibleSet(statistics, cutoff=0.95) {
 }
 
 /**
- * Analyze a set of probabilities and return booleans indicating which items contribute to the credible set
+ * Analyze a set of probabilities and return booleans indicating which items contribute to the credible set.
  *
- * This is a helper method for, eg, visualizing the members of the credible set by raw membership
+ * This is a helper method for, eg, visualizing the members of the credible set by raw membership.
  *
  * @param {Number[]} statistics Calculated statistics used to rank the credible set
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} An array of booleans identifying whether or not each item is in the credible set
- *  This array should be the same length as the provided statistic array
+ * @return {Boolean[]} An array of booleans identifying whether or not each item is in the credible set
+ *  This array should be the same length as the provided statistics array
  */
 function markCredibleSetBoolean(statistics, cutoff=0.95) {
     const setMembers = findCredibleSet(statistics, cutoff);
@@ -60,14 +61,14 @@ function markCredibleSetBoolean(statistics, cutoff=0.95) {
 /**
  * Analyze a set of probabilities and return a fraction saying how much each item contributes to the credible set.
  *   For example, if a single item accounts for 96% of total probabilities, then for the 95% credible set,
- *   that item would be scaled to "1.0" (because it alone represents the entire credible set and then some)
+ *   that item would be scaled to "1.0" (because it alone represents the entire credible set and then some).
  *
- * This is a helper method for, eg, visualizing the most relative significance of contributions to the credible set
+ * This is a helper method for, eg, visualizing the relative significance of contributions to the credible set.
  *
  * @param {Number[]} statistics Calculated statistics used to rank the credible set
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for
- *  This array should be the same length as the provided statistic array
+ * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for.
+ *  This array should be the same length as the provided statistics array
  */
 function markCredibleSetScaled(statistics, cutoff=0.95) {
     const setMemberScores = findCredibleSet(statistics, cutoff);
