@@ -8,15 +8,15 @@ based on a profiling script available in this repo. All calculations were perfor
 
 | Description                                   | Total time (ms) | Time per run (avg, ms) |
 | --------------------------------------------- | ----------------| ---------------------- |
-| SMALL- All calcs use slow exact method        | 673.677         | 0.674                  |
-| MEDIUM- All calcs use slow exact method       | 3708.360        | 3.708                  |
-| LARGE- All calcs use slow exact method        | 26276.295       | 26.276                 |
-| SMALL- All calcs use slow exact method + cap  | 663.508         | 0.664                  |
-| MEDIUM- All calcs use slow exact method + cap | 3770.359        | 3.770                  |
-| LARGE- All calcs use slow exact method + cap  | 26833.548       | 26.834                 |
-| SMALL- All calcs use fast approx              | 380.717         | 0.381                  |
-| MEDIUM- All calcs use fast approx             | 2161.285        | 2.161                  |
-| LARGE- All calcs use fast approx              | 17001.494       | 17.001                 |
-| SMALL- Mix of fast and slow                   | 384.202         | 0.384                  |
-| MEDIUM- Mix of fast and slow                  | 2124.657        | 2.125                  |
-| LARGE- Mix of fast and slow                   | 15182.065       | 15.182                 |
+| SMALL- All calcs use slow exact method        | 591.881         | 0.592                  |
+| MEDIUM- All calcs use slow exact method       | 3125.162        | 3.125                  |
+| LARGE- All calcs use slow exact method        | 23701.764       | 23.702                 |
+| SMALL- All calcs use slow exact method + cap  | 553.445         | 0.553                  |
+| MEDIUM- All calcs use slow exact method + cap | 3188.145        | 3.188                  |
+| LARGE- All calcs use slow exact method + cap  | 23539.543       | 23.540                 |
+| SMALL- All calcs use fast approx              | 325.722         | 0.326                  |
+| MEDIUM- All calcs use fast approx             | 1990.112        | 1.990                  |
+| LARGE- All calcs use fast approx              | 15543.108       | 15.543                 |
+| SMALL- Mix of fast and slow                   | 348.681         | 0.349                  |
+| MEDIUM- Mix of fast and slow                  | 1975.571        | 1.976                  |
+| LARGE- Mix of fast and slow                   | 13816.441       | 13.816                 |
