@@ -196,7 +196,7 @@ gulp.task('coverage', ['lint'], coverage);
 gulp.task('test-browser', ['lint', 'clean-tmp'], testBrowser);
 
 // Run the headless unit tests as you make changes.
-gulp.task('watch', watch);
+gulp.task('watch', ['test'], watch);
 
 // An alias of test
 gulp.task('default', ['test']);
