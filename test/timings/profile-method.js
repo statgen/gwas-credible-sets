@@ -34,7 +34,7 @@ function timeTask(func, args, nruns=1000) {
 // A set of functions that get called to define a single test. Throws away result when done.
 function runWorkflow(nlogpvals) {
     const scores = credibleSets.scoring.minKodos(nlogpvals);
-    return credibleSets.marking.markCredibleSet(scores);
+    return credibleSets.marking.findCredibleSet(scores);
 }
 
 // Generate sample data and call profiling when ready
