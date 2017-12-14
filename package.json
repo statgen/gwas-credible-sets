@@ -1,11 +1,11 @@
 {
-  "name": "credible-sets",
+  "name": "gwas-credible-sets",
   "version": "0.0.1",
   "description": "Summarize GWAS results",
   "engines": {
     "node": ">=6.12.0"
   },
-  "main": "dist/credible-sets.js",
+  "main": "dist/gwas-credible-sets.js",
   "scripts": {
     "test": "gulp",
     "lint": "gulp lint",
@@ -17,15 +17,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/abought/credible-sets.git"
+    "url": "https://github.com/abought/gwas-credible-sets.git"
   },
   "keywords": [],
   "author": "Andy Boughton <abought@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/abought/credible-sets/issues"
+    "url": "https://github.com/abought/gwas-credible-sets/issues"
   },
-  "homepage": "https://github.com/abought/credible-sets",
+  "homepage": "https://github.com/abought/gwas-credible-sets",
   "devDependencies": {
     "babel-core": "6.26.0",
     "babel-loader": "7.1.2",
@@ -56,7 +56,7 @@
     "webpack-stream": "4.0.0"
   },
   "babelBoilerplateOptions": {
-    "entryFileName": "credible-sets.js",
-    "mainVarName": "credibleSets"
+    "entryFileName": "gwas-credible-sets.js",
+    "mainVarName": "gwasCredibleSets"
   }
 }
