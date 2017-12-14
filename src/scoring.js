@@ -54,7 +54,7 @@ function bayesFactors(nlogpvals, cap=true) {
             z2 = z2.map(item => (item - capValue));
         }
     }
-    return z2.map(item => Math.exp(item));
+    return z2.map(item => Math.exp(item / 2));
 }
 
 /**

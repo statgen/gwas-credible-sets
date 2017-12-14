@@ -57,7 +57,7 @@ describe('scoring module', () => {
             const nlogpvals = [.004, 8, 100, 155];
             assert.sameOrderedMembers(
                 bayesFactors(nlogpvals),
-                [1.000132045040125, 183136585867934.2, 1.3962902790014125e+197, 8.981883580042658e+306]
+                [1.0000660203407197, 13532796.675777487, 3.736696775229979e+98, 2.9969790756764814e+153]
             );
         });
         it('should return valid results (and apply a cap if z2 would otherwise be too large)', () => {
@@ -70,7 +70,7 @@ describe('scoring module', () => {
             const nlogpvals = [.004, 8, 100, 155, 156];
             assert.sameOrderedMembers(
                 bayesFactors(nlogpvals),
-                [0.03388377603493786, 6204539780647.959, 4.730534065783949e+195, 3.0429995029890414e+305, 3.023383144276055e+307]
+                [0.1840754628812267, 2490891.362674807, 6.877887804976138e+97, 5.516338915430271e+152, 5.498529934697141e+153]
             );
 
             // TODO: For a truly ginormous range, the cap causes some terms to be rendered exp(-value) and they go to zero.
@@ -80,7 +80,7 @@ describe('scoring module', () => {
             const reallybigvals = [2525, 3535, 4545, 5555, 6565, 7510, 8510, 9595];
             assert.sameOrderedMembers(
                 bayesFactors(reallybigvals),
-                [0, 0, 0, 0, 0, 0, 0, 3.023383144276055e+307]
+                [0, 0, 0, 0, 0, 0, 0, 5.498529934697141e+153]
             );
         });
     });
