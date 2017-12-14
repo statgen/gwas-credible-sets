@@ -30,31 +30,36 @@ function _nlogp_to_z2(nlogp) {
 }
 
 /**
- * Calculate a probability statistic exp(Z^2) based on pvalues
+ * Calculate a probability statistic exp(Z^2 / 2) based on pvalues. If the Z-score is very large, the bayes factors
+ *  can be calculated in an inexact (capped) manner that makes the calculation tractable but preserves comparisons
  * @param {Number[]} nlogpvals An array of -log(pvalue) entries
- * @return {Number[]} An array of exp(Z^2) statistics
+ * @param {Boolean} [cap=true] Whether to apply an inexact method. If false, some values in the return array may
+ *  be represented as "Infinity", but the bayes factors will be directly calculated wherever possible.
+ * @return {Number[]} An array of exp(Z^2 / 2) statistics
  */
-function minKodos(nlogpvals) {
-    if (!Array.isArray(nlogpvals) || ! nlogpvals.length) { // TODO: Custom exception types?
+function bayesFactors(nlogpvals, cap=true) {
+    if (!Array.isArray(nlogpvals) || ! nlogpvals.length) {
         throw 'Must provide a non-empty array of pvalues';
     }
 
     // 1. Convert the pvalues to Z^2 values
     let z2 = nlogpvals.map(item => _nlogp_to_z2(item));
 
-    // 2. Calculate exp(Z^2), using a truncation approach that prevents exp(Z^2) from overrunning the max float64 value
-    //   (when Z^2 > 709 or so). As safeguard, we could (but currently don't) check that exp(Z^2) is not larger
+    // 2. Calculate bayes factor, using a truncation approach that prevents overrunning the max float64 value
+    //   (when Z^2 /2 > 709 or so). As safeguard, we could (but currently don't) check that exp(Z^2) is not larger
     //   than infinity.
-    const cap = Math.max(...z2) - 708; // The real cap is ~709; this should prevent any value from exceeding it
-    if (cap > 0) {
-        z2 = z2.map(item => (item - cap));
+    if (cap) {
+        const capValue = Math.max(...z2) - 708; // The real cap is ~709; this should prevent any value from exceeding it
+        if (capValue > 0) {
+            z2 = z2.map(item => (item - capValue));
+        }
     }
     return z2.map(item => Math.exp(item));
 }
 
-const rollup = { minKodos };
+const rollup = { bayesFactors };
 export default rollup;
-export { minKodos };
+export { bayesFactors };
 
 // Export additional symbols for unit testing only (not part of public interface for the module)
 export { _nlogp_to_z2 };

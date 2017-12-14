@@ -1,4 +1,4 @@
-import { minKodos, _nlogp_to_z2 } from '../../src/scoring';
+import { bayesFactors, _nlogp_to_z2 } from '../../src/scoring';
 
 function _runScenarios (scenarios, method) {
     // Helper method for running tests
@@ -41,10 +41,10 @@ describe('scoring module', () => {
             });
         })
     });
-    describe('minKodos scoring function', () => {
+    describe('bayesFactors scoring function', () => {
         it('should validate arguments', () => {
             assert.throws(
-                () => minKodos('not array'),
+                () => bayesFactors('not array'),
                 'Must provide a non-empty array of pvalues'
             )
         });
@@ -56,7 +56,7 @@ describe('scoring module', () => {
             //  coerce with a single closeTo tolerance due to the range of exponents involved
             const nlogpvals = [.004, 8, 100, 155];
             assert.sameOrderedMembers(
-                minKodos(nlogpvals),
+                bayesFactors(nlogpvals),
                 [1.000132045040125, 183136585867934.2, 1.3962902790014125e+197, 8.981883580042658e+306]
             );
         });
@@ -69,7 +69,7 @@ describe('scoring module', () => {
             // These "Actual" values are drawn directly from the output of this method
             const nlogpvals = [.004, 8, 100, 155, 156];
             assert.sameOrderedMembers(
-                minKodos(nlogpvals),
+                bayesFactors(nlogpvals),
                 [0.03388377603493786, 6204539780647.959, 4.730534065783949e+195, 3.0429995029890414e+305, 3.023383144276055e+307]
             );
 
@@ -79,7 +79,7 @@ describe('scoring module', () => {
             //      survived the cap really would probably dominate anyway
             const reallybigvals = [2525, 3535, 4545, 5555, 6565, 7510, 8510, 9595];
             assert.sameOrderedMembers(
-                minKodos(reallybigvals),
+                bayesFactors(reallybigvals),
                 [0, 0, 0, 0, 0, 0, 0, 3.023383144276055e+307]
             );
         });
