@@ -1,8 +1,9 @@
 /** @module marking */
 
 /**
- * Given a set of probabilities, determine which contribute most to a sum, and are thus members of the credible set.
- *   Return a mask of `statistics`, where values for non-set-members are set to 0.
+ * Given a set of raw per-element score statistics, determine which contribute most to total posterior probability,
+ * and are thus members of the credible set.
+ *   Return a mask of the provided `statistics` array, where values for non-set-members are set to 0.
  * @param {Number[]} statistics Calculated statistics used to rank the credible set
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
  * @return {Number[]} A mask of the statistics array, showing the originally provided value for items in the credible

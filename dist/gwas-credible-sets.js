@@ -4,9 +4,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["credibleSets"] = factory();
+		exports["gwasCredibleSets"] = factory();
 	else
-		root["credibleSets"] = factory();
+		root["gwasCredibleSets"] = factory();
 })(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -86,9 +86,9 @@ Object.defineProperty(exports, "__esModule", {
 /** @module stats */
 
 /**
- * The inverse of the CDF. May be used to determine the z-score for the desired quantile
+ * The inverse of the CDF. May be used to determine the z-score for the desired quantile.
  *
- * This is an implementation of algorithm AS241
+ * This is an implementation of algorithm AS241:
  *     https://www.jstor.org/stable/2347330
  * @param {number} p The desired quantile of the normal distribution
  * @returns {number}
@@ -179,14 +179,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // HACK: Because a primary audience is targets that do not have any module system, we will expose submodules from the
 //  top-level module. (by representing each sub-module as a "rollup object" that exposes its internal methods)
-// Then, submodules may be accessed as `window.credibleSets.stats`, etc
+// Then, submodules may be accessed as `window.gwasCredibleSets.stats`, etc
 
 // If you are using a real module system, please import from sub-modules directly- these global helpers are a bit of
 //  a hack and may go away in the future
-// TODO: Revisit, because exporting an aggregate this way might lose some of the benefits of real modules down the line
 exports.scoring = _scoring2.default;
 exports.stats = _stats2.default;
-exports.marking = _marking2.default; /** @module credible-sets */
+exports.marking = _marking2.default; /** @module gwas-credible-sets */
 
 /***/ }),
 /* 2 */
@@ -198,14 +197,14 @@ exports.marking = _marking2.default; /** @module credible-sets */
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports._nlogp_to_z2 = exports.minKodos = undefined;
+exports._nlogp_to_z2 = exports.bayesFactors = undefined;
 
 var _stats = __webpack_require__(0);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } } /** @module scoring */
 
 /**
- * Convert a -logp value to Z^2
+ * Convert a -logp value to Z^2.
  *
  * Very large -logp (very small p values) cannot be converted to z by a direct method. These values
  *  are handled using an approximation: for small p-values, Z_i^2 has a linear relationship with -log10 p-value.
@@ -230,13 +229,17 @@ function _nlogp_to_z2(nlogp) {
 }
 
 /**
- * Calculate a probability statistic exp(Z^2) based on pvalues
+ * Calculate a probability statistic exp(Z^2 / 2) based on pvalues. If the Z-score is very large, the bayes factors
+ *  can be calculated in an inexact (capped) manner that makes the calculation tractable but preserves comparisons
  * @param {Number[]} nlogpvals An array of -log(pvalue) entries
- * @return {Number[]} An array of exp(Z^2) statistics
+ * @param {Boolean} [cap=true] Whether to apply an inexact method. If false, some values in the return array may
+ *  be represented as "Infinity", but the bayes factors will be directly calculated wherever possible.
+ * @return {Number[]} An array of exp(Z^2 / 2) statistics
  */
-function minKodos(nlogpvals) {
+function bayesFactors(nlogpvals) {
+    var cap = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
     if (!Array.isArray(nlogpvals) || !nlogpvals.length) {
-        // TODO: Custom exception types?
         throw 'Must provide a non-empty array of pvalues';
     }
 
@@ -245,23 +248,25 @@ function minKodos(nlogpvals) {
         return _nlogp_to_z2(item);
     });
 
-    // 2. Calculate exp(Z^2), using a truncation approach that prevents exp(Z^2) from overrunning the max float64 value
-    //   (when Z^2 > 709 or so). As safeguard, we could (but currently don't) check that exp(Z^2) is not larger
+    // 2. Calculate bayes factor, using a truncation approach that prevents overrunning the max float64 value
+    //   (when Z^2 /2 > 709 or so). As safeguard, we could (but currently don't) check that exp(Z^2) is not larger
     //   than infinity.
-    var cap = Math.max.apply(Math, _toConsumableArray(z2)) - 708; // The real cap is ~709; this should prevent any value from exceeding it
-    if (cap > 0) {
-        z2 = z2.map(function (item) {
-            return item - cap;
-        });
+    if (cap) {
+        var capValue = Math.max.apply(Math, _toConsumableArray(z2)) - 708; // The real cap is ~709; this should prevent any value from exceeding it
+        if (capValue > 0) {
+            z2 = z2.map(function (item) {
+                return item - capValue;
+            });
+        }
     }
     return z2.map(function (item) {
         return Math.exp(item);
     });
 }
 
-var rollup = { minKodos: minKodos };
+var rollup = { bayesFactors: bayesFactors };
 exports.default = rollup;
-exports.minKodos = minKodos;
+exports.bayesFactors = bayesFactors;
 
 // Export additional symbols for unit testing only (not part of public interface for the module)
 
@@ -284,10 +289,11 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 /**
  * Given a set of probabilities, determine which contribute most to a sum, and are thus members of the credible set.
- *   Return an array similar to `statistics`, but with non-set-member scores set to 0.
-  * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ *   Return a mask of `statistics`, where values for non-set-members are set to 0.
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} An array of numbers representing scores for items in the set (and zero for non-members)
+ * @return {Number[]} A mask of the statistics array, showing the originally provided value for items in the credible
+ *  set, and zero for items not in the set.
  *  This array should be the same length as the provided statistic array
  */
 function findCredibleSet(statistics) {
@@ -334,14 +340,14 @@ function findCredibleSet(statistics) {
 }
 
 /**
- * Analyze a set of probabilities and return booleans indicating which items contribute to the credible set
+ * Analyze a set of probabilities and return booleans indicating which items contribute to the credible set.
  *
- * This is a helper method for, eg, visualizing the members of the credible set by raw membership
+ * This is a helper method for, eg, visualizing the members of the credible set by raw membership.
  *
  * @param {Number[]} statistics Calculated statistics used to rank the credible set
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} An array of booleans identifying whether or not each item is in the credible set
- *  This array should be the same length as the provided statistic array
+ * @return {Boolean[]} An array of booleans identifying whether or not each item is in the credible set
+ *  This array should be the same length as the provided statistics array
  */
 function markCredibleSetBoolean(statistics) {
     var cutoff = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.95;
@@ -355,14 +361,14 @@ function markCredibleSetBoolean(statistics) {
 /**
  * Analyze a set of probabilities and return a fraction saying how much each item contributes to the credible set.
  *   For example, if a single item accounts for 96% of total probabilities, then for the 95% credible set,
- *   that item would be scaled to "1.0" (because it alone represents the entire credible set and then some)
+ *   that item would be scaled to "1.0" (because it alone represents the entire credible set and then some).
  *
- * This is a helper method for, eg, visualizing the most relative significance of contributions to the credible set
+ * This is a helper method for, eg, visualizing the relative significance of contributions to the credible set.
  *
  * @param {Number[]} statistics Calculated statistics used to rank the credible set
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for
- *  This array should be the same length as the provided statistic array
+ * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for.
+ *  This array should be the same length as the provided statistics array
  */
 function markCredibleSetScaled(statistics) {
     var cutoff = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.95;
@@ -385,4 +391,4 @@ exports.markCredibleSetScaled = markCredibleSetScaled;
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=credible-sets.js.map
+//# sourceMappingURL=gwas-credible-sets.js.map

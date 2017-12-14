@@ -57,9 +57,23 @@ function bayesFactors(nlogpvals, cap=true) {
     return z2.map(item => Math.exp(item));
 }
 
-const rollup = { bayesFactors };
+/**
+ * Convert an array of raw per-element probability scores into posterior probabilities, dividing by the sum of all
+ *   elements in the range.
+ *
+ * This is a helper function for visualization and analysis; most of the methods in this library will convert raw
+ * scores to posterior probabilities internally.
+ * @param {Number[]} scores An array of probability scores for all elements in the range
+ * @returns {Number[]} Posterior probabilities
+ */
+function posteriorProbabilities(scores) {
+    const sumValues = scores.reduce((a, b) => a + b, 0);
+    return scores.map(item => item / sumValues);
+}
+
+const rollup = { bayesFactors, posteriorProbabilities };
 export default rollup;
-export { bayesFactors };
+export { bayesFactors, posteriorProbabilities };
 
 // Export additional symbols for unit testing only (not part of public interface for the module)
 export { _nlogp_to_z2 };
