@@ -17,15 +17,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/abought/gwas-credible-sets.git"
+    "url": "https://github.com/statgen/gwas-credible-sets.git"
   },
-  "keywords": [],
-  "author": "Andy Boughton <abought@gmail.com>",
+  "keywords": [
+    "genetics",
+    "gwas",
+    "credible sets"
+  ],
+  "author": "Andy Boughton <abought@umich.edu>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/abought/gwas-credible-sets/issues"
+    "url": "https://github.com/statgen/gwas-credible-sets/issues"
   },
-  "homepage": "https://github.com/abought/gwas-credible-sets",
+  "homepage": "https://github.com/statgen/gwas-credible-sets",
   "devDependencies": {
     "babel-core": "6.26.0",
     "babel-loader": "7.1.2",
