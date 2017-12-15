@@ -1,15 +1,19 @@
-/** @module scoring */
+/** 
+ * @module scoring 
+ * @license MIT
+ */
 
 import { ninv } from './stats';
 
 
 /**
- * Convert a -logp value to Z^2.
+ * Convert a -log10 p-value to Z^2.
  *
- * Very large -logp (very small p values) cannot be converted to z by a direct method. These values
- *  are handled using an approximation: for small p-values, Z_i^2 has a linear relationship with -log10 p-value.
+ * Very large -log10 p-values (very small p-values) cannot be converted to a Z-statistic directly in the browser due to
+ *  limitations in javascript (64-bit floats.) These values are handled using an approximation:
+ *  for small p-values, Z_i^2 has a linear relationship with -log10 p-value.
  *
- *  The cutoff on pvalues is ~ 10^-325
+ *  The approximation begins for -log10 p-values >= 300.
  *
  * @param nlogp
  * @return {number}
@@ -22,7 +26,7 @@ function _nlogp_to_z2(nlogp) {
         return Math.pow(ninv(p / 2), 2);
     }
     else {
-        // For very small p-values, -log10(pval) and z^2 have a linear relationship
+        // For very small p-values, -log10(pval) and Z^2 have a linear relationship
         // This avoids issues with needing higher precision floats when doing the calculation
         // with ninv
         return (4.59884133027944 * nlogp) - 5.88085867031722
@@ -30,11 +34,11 @@ function _nlogp_to_z2(nlogp) {
 }
 
 /**
- * Calculate a probability statistic exp(Z^2 / 2) based on pvalues. If the Z-score is very large, the bayes factors
- *  can be calculated in an inexact (capped) manner that makes the calculation tractable but preserves comparisons
- * @param {Number[]} nlogpvals An array of -log(pvalue) entries
+ * Calculate a Bayes factor exp(Z^2 / 2) based on p-values. If the Z-score is very large, the Bayes factors
+ *  are calculated in an inexact (capped) manner that makes the calculation tractable but preserves comparisons.
+ * @param {Number[]} nlogpvals An array of -log10(p-value) entries
  * @param {Boolean} [cap=true] Whether to apply an inexact method. If false, some values in the return array may
- *  be represented as "Infinity", but the bayes factors will be directly calculated wherever possible.
+ *  be represented as "Infinity", but the Bayes factors will be directly calculated wherever possible.
  * @return {Number[]} An array of exp(Z^2 / 2) statistics
  */
 function bayesFactors(nlogpvals, cap=true) {
@@ -47,8 +51,8 @@ function bayesFactors(nlogpvals, cap=true) {
     //   but the resulting credible set contents / posterior probabilities are unchanged.
     let z2_2 = nlogpvals.map(item => _nlogp_to_z2(item) / 2);
 
-    // 2. Calculate bayes factor, using a truncation approach that prevents overrunning the max float64 value for e**x
-    //   (when x > 709 or so). As safeguard, we could (but currently don't) check that exp(x) is not larger
+    // 2. Calculate bayes factor, using a truncation approach that prevents overrunning the max float64 value
+    //   (when Z^2 / 2 > 709 or so). As safeguard, we could (but currently don't) check that exp(Z^2 / 2) is not larger
     //   than infinity.
     if (cap) {
         const capValue = Math.max(...z2_2) - 708; // The real cap is ~709; this should prevent any value from exceeding it

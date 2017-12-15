@@ -1,30 +1,37 @@
-/** @module marking */
+/** 
+ * @module marking 
+ * @license MIT
+ */
 
 /**
- * Given a set of raw per-element score statistics, determine which contribute most to total posterior probability,
- * and are thus members of the credible set.
- * @param {Number[]} statistics Calculated statistics used to rank the credible set (eg raw bayes factors)
- * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} An array with posterior probabilities (for the items in the credible set), and zero for all
- *   other elements
- *  This array should be the same length as the provided statistic array
+ * Given an array of probabilities, determine which elements of the array fall within the X% credible set, 
+ * where X is the cutoff value. 
+ * 
+ * Return a mask of `probs`, where values for elements that do not belong to the credible set are set to 0. 
+ * 
+ * @param {Number[]} probs Calculated probabilities used to rank the credible set.
+ * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability.
+ *  For example, 0.95 would represent the 95% credible set. 
+ * @return {Number[]} A mask of the `probs` array, showing the originally provided value for items in the credible
+ *  set, and zero for items not in the set.
+ *  This array is the same length as the provided probabilities array.
  */
-function findCredibleSet(statistics, cutoff=0.95) {
+function findCredibleSet(probs, cutoff=0.95) {
     // Type checking
-    if (!Array.isArray(statistics) || !statistics.length) {
-        throw 'Statistics must be a non-empty array';
+    if (!Array.isArray(probs) || !probs.length) {
+        throw 'Probs must be a non-empty array';
     }
     if (!(typeof cutoff === 'number' ) || cutoff < 0 || cutoff > 1.0 || Number.isNaN(cutoff)) {
         throw 'Cutoff must be a number between 0 and 1';
     }
 
-    const statsTotal = statistics.reduce((a, b) => a + b, 0);
+    const statsTotal = probs.reduce((a, b) => a + b, 0);
     if (statsTotal <= 0) {
-        throw 'Sum of provided statistics must be > 0';
+        throw 'Sum of provided probabilities must be > 0';
     }
 
-    // Sort the statistics by largest first, while preserving a map to original item order
-    const sortedStatsMap = statistics
+    // Sort the probabilities by largest first, while preserving a map to original item order
+    const sortedStatsMap = probs
         .map((item, index) => [item, index])
         .sort((a, b) => (b[0] - a[0]));
 
@@ -46,35 +53,39 @@ function findCredibleSet(statistics, cutoff=0.95) {
 }
 
 /**
- * Analyze a set of probabilities and return booleans indicating which items contribute to the credible set.
+ * Given an array of probabilities, determine which elements of the array fall within the X% credible set, 
+ * where X is the cutoff value. 
  *
- * This is a helper method for, eg, visualizing the members of the credible set by raw membership.
+ * Returns a boolean array, where true denotes membership in the credible set, false otherwise. 
+ * 
+ * This is a helper method used when visualizing the members of the credible set by raw membership.
  *
- * @param {Number[]} statistics Calculated statistics used to rank the credible set (eg raw bayes factors)
+ * @param {Number[]} probs Calculated probabilities used to rank the credible set.
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Boolean[]} An array of booleans identifying whether or not each item is in the credible set
- *  This array should be the same length as the provided statistics array
+ * @return {Boolean[]} An array of booleans identifying whether or not each item is in the credible set.
+ *  This array is the same length as the provided probabilities array.
  */
-function markCredibleSetBoolean(statistics, cutoff=0.95) {
-    const setMembers = findCredibleSet(statistics, cutoff);
+function markCredibleSetBoolean(probs, cutoff=0.95) {
+    const setMembers = findCredibleSet(probs, cutoff);
     return setMembers.map(item => !!item);
 }
 
 /**
- * Analyze a set of probabilities and return a fraction saying how much each item contributes to the credible set.
- *   For example, if a single item accounts for 96% of total probabilities, then for the 95% credible set,
- *   that item would be scaled to "1.0" (because it alone represents the entire credible set and then some).
+ * Given an array of probabilities, determine which elements fall in the X% credible set, then rescale
+ * the probabilities within only the credible set to their total sum. 
+ * 
+ * Example for 95% credible set: [0.92, 0.06, 0.02] -> [0.938, 0.061, 0]. The first two elements here
+ * belong to the credible set, the last element does not. 
  *
- * This is a helper method for, eg, visualizing the relative significance of contributions to the credible set.
- *   For example, when a gradient must be specified in advance and is not auto-determined by the range of the data.
+ * This is a helper method for visualizing the relative significance of contributions to the credible set.
  *
- * @param {Number[]} statistics Calculated statistics used to rank the credible set (eg raw bayes factors)
+ * @param {Number[]} probs Calculated probabilities used to rank the credible set.
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
  * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for.
- *  This array should be the same length as the provided statistics array
+ *  This array is same length as the provided probabilities array.
  */
-function markCredibleSetScaled(statistics, cutoff=0.95) {
-    const setMemberScores = findCredibleSet(statistics, cutoff);
+function markCredibleSetScaled(probs, cutoff=0.95) {
+    const setMemberScores = findCredibleSet(probs, cutoff);
     const sumMarkers = setMemberScores.reduce((a, b) => a + b, 0);
     return setMemberScores.map(item => item / sumMarkers);
 }
