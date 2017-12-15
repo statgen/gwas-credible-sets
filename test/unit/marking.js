@@ -13,7 +13,7 @@ describe('marking module', () => {
                 [[], 1.0],
                 ['not an array', 1.0]
             ];
-            const badStatisticsMessage = /Statistics must be a non-empty array/;
+            const badStatisticsMessage = /Probs must be a non-empty array/;
             badStatisticsValues.forEach(args => {
                 assert.throws(
                     () => findCredibleSet(...args),
@@ -24,7 +24,7 @@ describe('marking module', () => {
             });
             assert.throws(
                 () => findCredibleSet([0, 0, 0]),
-                /Sum of provided statistics must be > 0/,
+                /Sum of provided probabilities must be > 0/,
                 null,
                 'Should avoid division by zero'
             );

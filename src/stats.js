@@ -1,12 +1,16 @@
-/** @module stats */
+/** 
+ * @module stats 
+ * @license MIT
+ * */
 
 /**
- * The inverse of the CDF. May be used to determine the z-score for the desired quantile.
+ * The inverse of the standard normal CDF. May be used to determine the Z-score for the desired quantile.
  *
  * This is an implementation of algorithm AS241:
  *     https://www.jstor.org/stable/2347330
- * @param {Number} p The desired quantile of the normal distribution
- * @returns {Number}
+ * 
+ * @param {number} p The desired quantile of the standard normal distribution.
+ * @returns {number}
  */
 function ninv(p) {
     const SPLIT1 = 0.425;
