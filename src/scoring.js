@@ -64,22 +64,20 @@ function bayesFactors(nlogpvals, cap=true) {
 }
 
 /**
- * Convert an array of raw per-element probability scores into posterior probabilities, dividing by the sum of all
- *   elements in the range.
+ * Normalize so that sum of all elements = 1.0. This method must be applied to bayes factors before calculating any
+ *  credible set.
  *
- * This is a helper function for visualization and analysis; most of the methods in this library will convert raw
- * scores to posterior probabilities internally.
  * @param {Number[]} scores An array of probability scores for all elements in the range
  * @returns {Number[]} Posterior probabilities
  */
-function posteriorProbabilities(scores) {
+function normalizeProbabilities(scores) {
     const sumValues = scores.reduce((a, b) => a + b, 0);
     return scores.map(item => item / sumValues);
 }
 
-const rollup = { bayesFactors, posteriorProbabilities };
+const rollup = { bayesFactors, normalizeProbabilities };
 export default rollup;
-export { bayesFactors, posteriorProbabilities };
+export { bayesFactors, normalizeProbabilities };
 
 // Export additional symbols for unit testing only (not part of public interface for the module)
 export { _nlogp_to_z2 };

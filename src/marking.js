@@ -51,44 +51,40 @@ function findCredibleSet(probs, cutoff=0.95) {
 }
 
 /**
- * Given an array of probabilities, determine which elements of the array fall within the X% credible set,
- * where X is the cutoff value.
- *
- * Returns a boolean array, where true denotes membership in the credible set, false otherwise.
+ * Given a numeric [pre-calculated credible set]{@link #findCredibleSet}, return an array of booleans where true
+ *   denotes membership in the credible set.
  *
  * This is a helper method used when visualizing the members of the credible set by raw membership.
  *
- * @param {Number[]} probs Calculated probabilities used to rank the credible set.
- * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
+ * @param {Number[]} credibleSetMembers An array indicating contributions to the credible set, where non-members are
+ *  represented by some falsy value.
  * @return {Boolean[]} An array of booleans identifying whether or not each item is in the credible set.
- *  This array is the same length as the provided probabilities array.
+ *  This array is the same length as the provided credible set array.
  */
-function markCredibleSetBoolean(probs, cutoff=0.95) {
-    const setMembers = findCredibleSet(probs, cutoff);
-    return setMembers.map(item => !!item);
+function markBoolean(credibleSetMembers) {
+    return credibleSetMembers.map(item => !!item);
 }
 
 /**
  * Visualization helper method for rescaling data to a predictable output range, eg when range for a color gradient
  *   must be specified in advance.
  *
- * Given an array of probabilities, determine which elements fall in the X% credible set, then rescale
- * the probabilities within only the credible set to their total sum.
+ * Given an array of probabilities for items in a credible set, rescale the probabilities within only the credible
+ *   set to their total sum.
  *
+ * TODO: Better example?
  * Example for 95% credible set: [0.92, 0.06, 0.02] -> [0.938, 0.061, 0]. The first two elements here
  * belong to the credible set, the last element does not.
  *
- * @param {Number[]} probs Calculated probabilities used to rank the credible set.
- * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for.
- *  This array is same length as the provided probabilities array.
+ * @param {Number[]} credibleSetMembers Calculated probabilities used to rank the credible set.
+ * @return {Number[]} The fraction of credible set probabilities each item accounts for.
+ *  This array is the same length as the provided credible set.
  */
-function markCredibleSetScaled(probs, cutoff=0.95) {
-    const setMemberScores = findCredibleSet(probs, cutoff);
-    const sumMarkers = setMemberScores.reduce((a, b) => a + b, 0);
-    return setMemberScores.map(item => item / sumMarkers);
+function rescaleCredibleSet(credibleSetMembers) {
+    const sumMarkers = credibleSetMembers.reduce((a, b) => a + b, 0);
+    return credibleSetMembers.map(item => item / sumMarkers);
 }
 
-const rollup = { findCredibleSet, markCredibleSetBoolean, markCredibleSetScaled };
+const rollup = { findCredibleSet, markBoolean, rescaleCredibleSet };
 export default rollup;
-export { findCredibleSet, markCredibleSetBoolean, markCredibleSetScaled };
+export { findCredibleSet, markBoolean, rescaleCredibleSet };

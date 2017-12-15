@@ -42,14 +42,17 @@ The example below assumes that you are given an array of p-values, each represen
 returns a set of booleans saying whether each data point is a member of the 95% credible set. 
 
 ```javascript
+    /// Calculate Bayes factors and process into a form that can be used for the credible set
     var scores = gwasCredibleSets.scoring.bayesFactors(nlogpvals);
-    var posteriorProbabilities = gwasCredibleSets.scoring.posteriorProbabilities(scores);
-    var credibleSetBoolean = gwasCredibleSets.marking.findCredibleSet(posteriorProbabilities, 0.95);
+    var posteriorProbabilities = gwasCredibleSets.scoring.normalizeProbabilities(scores);
+    // Identify the credible set and apply filters for visualization
+    var credibleSet = gwasCredibleSets.marking.findCredibleSet(posteriorProbabilities, 0.95);
+    var credibleSetBoolean = gwasCredibleSets.marking.markBoolean(credibleSet);
 ```
 
-The `marking` module contains several helper functions to control how the credible set is returned. Return values 
-can be posterior probabilities, or booleans indicating set members, or normalizing the output values to a pre-computed 
-range for visualization. See full documentation for details. 
+The `marking` module contains several helper functions to control how the credible set is returned. Helper methods are 
+  provided to process the set members (posterior probabilities) in ways that support visualization needs. 
+  See full documentation for details. 
 
 ## Development
 ### Requirements

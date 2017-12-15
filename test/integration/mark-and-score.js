@@ -1,12 +1,11 @@
-import { bayesFactors, posteriorProbabilities } from '../../src/scoring';
-import { markCredibleSetBoolean } from '../../src/marking';
+import { bayesFactors, normalizeProbabilities } from '../../src/scoring';
+import { findCredibleSet, markBoolean } from '../../src/marking';
 
-describe('Workflow for scoring a credible set from the LocusZoom API', () => {
+describe('Workflow for scoring a credible set based on pvalues', () => {
     it('should correctly mark the credible set for the default cutoff', () => {
         // Confirm that we get the expected:
         // - Posterior probabilities (indiv bayes factor / sum of all factors in the range)
         // - Set members (boolean markers of in / out)
-
 
         // A section of some data from ~20kb region of RBMS1 ("2:161207765_A/C" - "2:161227027_A/C", build 37)
         const nlogpvals = [
@@ -58,8 +57,9 @@ describe('Workflow for scoring a credible set from the LocusZoom API', () => {
         ];
 
         const scores = bayesFactors(nlogpvals);
-        const actualPosterior = posteriorProbabilities(scores);
-        const actualMarkers = markCredibleSetBoolean(scores);
+        const actualPosterior = normalizeProbabilities(scores);
+        const credibleSet = findCredibleSet(scores, 0.95);
+        const actualMarkers = markBoolean(credibleSet);
         assert.sameOrderedMembers(actualPosterior, expectedPosteriorProbabilities, 'Expected posterior probabilities do not match');
         assert.sameOrderedMembers(actualMarkers, expectedSetMembers, 'Expected credible set members do not match');
     });
