@@ -18,7 +18,7 @@ import { ninv } from './stats';
 function _nlogp_to_z2(nlogp) {
     const p = Math.pow(10, -nlogp);
     if (nlogp < 300) {
-        // Use exact method when within the range of 64-bit floats (approx 10^-325)
+        // Use exact method when within the range of 64-bit floats (approx 10^-323)
         return Math.pow(ninv(p / 2), 2);
     }
     else {
@@ -42,19 +42,21 @@ function bayesFactors(nlogpvals, cap=true) {
         throw 'Must provide a non-empty array of pvalues';
     }
 
-    // 1. Convert the pvalues to Z^2 values
-    let z2 = nlogpvals.map(item => _nlogp_to_z2(item));
+    // 1. Convert the pvalues to Z^2 / 2 values. Divide by 2 before applying the cap, because it means fewer values will
+    //   need to be truncated. This does affect some of the raw bayes factors that are returned (when a cap is needed),
+    //   but the resulting credible set contents / posterior probabilities are unchanged.
+    let z2_2 = nlogpvals.map(item => _nlogp_to_z2(item) / 2);
 
-    // 2. Calculate bayes factor, using a truncation approach that prevents overrunning the max float64 value
-    //   (when Z^2 /2 > 709 or so). As safeguard, we could (but currently don't) check that exp(Z^2) is not larger
+    // 2. Calculate bayes factor, using a truncation approach that prevents overrunning the max float64 value for e**x
+    //   (when x > 709 or so). As safeguard, we could (but currently don't) check that exp(x) is not larger
     //   than infinity.
     if (cap) {
-        const capValue = Math.max(...z2) - 708; // The real cap is ~709; this should prevent any value from exceeding it
+        const capValue = Math.max(...z2_2) - 708; // The real cap is ~709; this should prevent any value from exceeding it
         if (capValue > 0) {
-            z2 = z2.map(item => (item - capValue));
+            z2_2 = z2_2.map(item => (item - capValue));
         }
     }
-    return z2.map(item => Math.exp(item / 2));
+    return z2_2.map(item => Math.exp(item));
 }
 
 /**

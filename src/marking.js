@@ -3,11 +3,10 @@
 /**
  * Given a set of raw per-element score statistics, determine which contribute most to total posterior probability,
  * and are thus members of the credible set.
- *   Return a mask of the provided `statistics` array, where values for non-set-members are set to 0.
- * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set (eg raw bayes factors)
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} A mask of the statistics array, showing the originally provided value for items in the credible
- *  set, and zero for items not in the set.
+ * @return {Number[]} An array with posterior probabilities (for the items in the credible set), and zero for all
+ *   other elements
  *  This array should be the same length as the provided statistic array
  */
 function findCredibleSet(statistics, cutoff=0.95) {
@@ -34,6 +33,8 @@ function findCredibleSet(statistics, cutoff=0.95) {
     for (let i = 0; i < sortedStatsMap.length; i++) {
         let [value, index] = sortedStatsMap[i];
         if (runningTotal < cutoff) {
+            // Convert from a raw score to posterior probability by dividing the item under consideration
+            //  by sum of all probabilities.
             const score = value / statsTotal;
             result[index] = score;
             runningTotal += score;
@@ -49,7 +50,7 @@ function findCredibleSet(statistics, cutoff=0.95) {
  *
  * This is a helper method for, eg, visualizing the members of the credible set by raw membership.
  *
- * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set (eg raw bayes factors)
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
  * @return {Boolean[]} An array of booleans identifying whether or not each item is in the credible set
  *  This array should be the same length as the provided statistics array
@@ -65,8 +66,9 @@ function markCredibleSetBoolean(statistics, cutoff=0.95) {
  *   that item would be scaled to "1.0" (because it alone represents the entire credible set and then some).
  *
  * This is a helper method for, eg, visualizing the relative significance of contributions to the credible set.
+ *   For example, when a gradient must be specified in advance and is not auto-determined by the range of the data.
  *
- * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set (eg raw bayes factors)
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
  * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for.
  *  This array should be the same length as the provided statistics array

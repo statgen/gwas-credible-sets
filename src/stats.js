@@ -5,8 +5,8 @@
  *
  * This is an implementation of algorithm AS241:
  *     https://www.jstor.org/stable/2347330
- * @param {number} p The desired quantile of the normal distribution
- * @returns {number}
+ * @param {Number} p The desired quantile of the normal distribution
+ * @returns {Number}
  */
 function ninv(p) {
     const SPLIT1 = 0.425;

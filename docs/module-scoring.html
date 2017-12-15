@@ -64,7 +64,7 @@
     
 
     
-    <h4 class="name" id="~minKodos"><span class="type-signature">(inner) </span>minKodos<span class="signature">(nlogpvals)</span><span class="type-signature"> &rarr; {Array.&lt;Number>}</span></h4>
+    <h4 class="name" id="~bayesFactors"><span class="type-signature">(inner) </span>bayesFactors<span class="signature">(nlogpvals, cap<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;Number>}</span></h4>
     
 
     
@@ -72,7 +72,8 @@
 
 
 <div class="description">
-    Calculate a probability statistic exp(Z^2) based on pvalues
+    Calculate a probability statistic exp(Z^2 / 2) based on pvalues. If the Z-score is very large, the bayes factors
+ can be calculated in an inexact (capped) manner that makes the calculation tractable but preserves comparisons
 </div>
 
 
@@ -96,7 +97,11 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -121,10 +126,62 @@
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last">An array of -log(pvalue) entries</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cap</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+
+            <td class="description last">Whether to apply an inexact method. If false, some values in the return array may
+ be represented as "Infinity", but the bayes factors will be directly calculated wherever possible.</td>
         </tr>
 
     
@@ -165,7 +222,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoring.js.html">scoring.js</a>, <a href="scoring.js.html#line37">line 37</a>
+        <a href="scoring.js.html">scoring.js</a>, <a href="scoring.js.html#line40">line 40</a>
     </li></ul></dd>
     
 
@@ -192,7 +249,168 @@
 
         
 <div class="param-desc">
-    An array of exp(Z^2) statistics
+    An array of exp(Z^2 / 2) statistics
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;Number></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~posteriorProbabilities"><span class="type-signature">(inner) </span>posteriorProbabilities<span class="signature">(scores)</span><span class="type-signature"> &rarr; {Array.&lt;Number>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Convert an array of raw per-element probability scores into posterior probabilities, dividing by the sum of all
+  elements in the range.
+
+This is a helper function for visualization and analysis; most of the methods in this library will convert raw
+scores to posterior probabilities internally.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>scores</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An array of probability scores for all elements in the range</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="scoring.js.html">scoring.js</a>, <a href="scoring.js.html#line71">line 71</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Posterior probabilities
 </div>
 
 
@@ -231,13 +449,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-credible-sets.html">credible-sets</a></li><li><a href="module-marking.html">marking</a></li><li><a href="module-scoring.html">scoring</a></li><li><a href="module-stats.html">stats</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-gwas-credible-sets.html">gwas-credible-sets</a></li><li><a href="module-marking.html">marking</a></li><li><a href="module-scoring.html">scoring</a></li><li><a href="module-stats.html">stats</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Dec 12 2017 13:55:05 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Dec 14 2017 18:59:31 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

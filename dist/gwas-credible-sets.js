@@ -90,8 +90,8 @@ Object.defineProperty(exports, "__esModule", {
  *
  * This is an implementation of algorithm AS241:
  *     https://www.jstor.org/stable/2347330
- * @param {number} p The desired quantile of the normal distribution
- * @returns {number}
+ * @param {Number} p The desired quantile of the normal distribution
+ * @returns {Number}
  */
 function ninv(p) {
     var SPLIT1 = 0.425;
@@ -197,7 +197,7 @@ exports.marking = _marking2.default; /** @module gwas-credible-sets */
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports._nlogp_to_z2 = exports.bayesFactors = undefined;
+exports._nlogp_to_z2 = exports.posteriorProbabilities = exports.bayesFactors = undefined;
 
 var _stats = __webpack_require__(0);
 
@@ -218,7 +218,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _nlogp_to_z2(nlogp) {
     var p = Math.pow(10, -nlogp);
     if (nlogp < 300) {
-        // Use exact method when within the range of 64-bit floats (approx 10^-325)
+        // Use exact method when within the range of 64-bit floats (approx 10^-323)
         return Math.pow((0, _stats.ninv)(p / 2), 2);
     } else {
         // For very small p-values, -log10(pval) and z^2 have a linear relationship
@@ -243,30 +243,51 @@ function bayesFactors(nlogpvals) {
         throw 'Must provide a non-empty array of pvalues';
     }
 
-    // 1. Convert the pvalues to Z^2 values
-    var z2 = nlogpvals.map(function (item) {
-        return _nlogp_to_z2(item);
+    // 1. Convert the pvalues to Z^2 / 2 values. Divide by 2 before applying the cap, because it means fewer values will
+    //   need to be truncated. This does affect some of the raw bayes factors that are returned (when a cap is needed),
+    //   but the resulting credible set contents / posterior probabilities are unchanged.
+    var z2_2 = nlogpvals.map(function (item) {
+        return _nlogp_to_z2(item) / 2;
     });
 
-    // 2. Calculate bayes factor, using a truncation approach that prevents overrunning the max float64 value
-    //   (when Z^2 /2 > 709 or so). As safeguard, we could (but currently don't) check that exp(Z^2) is not larger
+    // 2. Calculate bayes factor, using a truncation approach that prevents overrunning the max float64 value for e**x
+    //   (when x > 709 or so). As safeguard, we could (but currently don't) check that exp(x) is not larger
     //   than infinity.
     if (cap) {
-        var capValue = Math.max.apply(Math, _toConsumableArray(z2)) - 708; // The real cap is ~709; this should prevent any value from exceeding it
+        var capValue = Math.max.apply(Math, _toConsumableArray(z2_2)) - 708; // The real cap is ~709; this should prevent any value from exceeding it
         if (capValue > 0) {
-            z2 = z2.map(function (item) {
+            z2_2 = z2_2.map(function (item) {
                 return item - capValue;
             });
         }
     }
-    return z2.map(function (item) {
+    return z2_2.map(function (item) {
         return Math.exp(item);
     });
 }
 
-var rollup = { bayesFactors: bayesFactors };
+/**
+ * Convert an array of raw per-element probability scores into posterior probabilities, dividing by the sum of all
+ *   elements in the range.
+ *
+ * This is a helper function for visualization and analysis; most of the methods in this library will convert raw
+ * scores to posterior probabilities internally.
+ * @param {Number[]} scores An array of probability scores for all elements in the range
+ * @returns {Number[]} Posterior probabilities
+ */
+function posteriorProbabilities(scores) {
+    var sumValues = scores.reduce(function (a, b) {
+        return a + b;
+    }, 0);
+    return scores.map(function (item) {
+        return item / sumValues;
+    });
+}
+
+var rollup = { bayesFactors: bayesFactors, posteriorProbabilities: posteriorProbabilities };
 exports.default = rollup;
 exports.bayesFactors = bayesFactors;
+exports.posteriorProbabilities = posteriorProbabilities;
 
 // Export additional symbols for unit testing only (not part of public interface for the module)
 
@@ -288,12 +309,12 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 /** @module marking */
 
 /**
- * Given a set of probabilities, determine which contribute most to a sum, and are thus members of the credible set.
- *   Return a mask of `statistics`, where values for non-set-members are set to 0.
- * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * Given a set of raw per-element score statistics, determine which contribute most to total posterior probability,
+ * and are thus members of the credible set.
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set (eg raw bayes factors)
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
- * @return {Number[]} A mask of the statistics array, showing the originally provided value for items in the credible
- *  set, and zero for items not in the set.
+ * @return {Number[]} An array with posterior probabilities (for the items in the credible set), and zero for all
+ *   other elements
  *  This array should be the same length as the provided statistic array
  */
 function findCredibleSet(statistics) {
@@ -329,6 +350,8 @@ function findCredibleSet(statistics) {
             index = _sortedStatsMap$i[1];
 
         if (runningTotal < cutoff) {
+            // Convert from a raw score to posterior probability by dividing the item under consideration
+            //  by sum of all probabilities.
             var score = value / statsTotal;
             result[index] = score;
             runningTotal += score;
@@ -344,7 +367,7 @@ function findCredibleSet(statistics) {
  *
  * This is a helper method for, eg, visualizing the members of the credible set by raw membership.
  *
- * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set (eg raw bayes factors)
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
  * @return {Boolean[]} An array of booleans identifying whether or not each item is in the credible set
  *  This array should be the same length as the provided statistics array
@@ -364,8 +387,9 @@ function markCredibleSetBoolean(statistics) {
  *   that item would be scaled to "1.0" (because it alone represents the entire credible set and then some).
  *
  * This is a helper method for, eg, visualizing the relative significance of contributions to the credible set.
+ *   For example, when a gradient must be specified in advance and is not auto-determined by the range of the data.
  *
- * @param {Number[]} statistics Calculated statistics used to rank the credible set
+ * @param {Number[]} statistics Calculated statistics used to rank the credible set (eg raw bayes factors)
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability
  * @return {Number[]} An array of numbers representing the fraction of credible set probabilities this item accounts for.
  *  This array should be the same length as the provided statistics array
