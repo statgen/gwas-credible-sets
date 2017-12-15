@@ -1,20 +1,18 @@
-/** 
- * @module marking 
+/**
+ * @module marking
  * @license MIT
  */
 
 /**
- * Given an array of probabilities, determine which elements of the array fall within the X% credible set, 
- * where X is the cutoff value. 
- * 
- * Return a mask of `probs`, where values for elements that do not belong to the credible set are set to 0. 
- * 
- * @param {Number[]} probs Calculated probabilities used to rank the credible set.
+ * Given an array of probabilities, determine which elements of the array fall within the X% credible set,
+ *   where X is the cutoff value.
+ *
+ * @param {Number[]} probs Calculated probabilities used to rank the credible set. This method will normalize the
+ *   provided input to ensure that the values sum to 1.0.
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability.
- *  For example, 0.95 would represent the 95% credible set. 
- * @return {Number[]} A mask of the `probs` array, showing the originally provided value for items in the credible
- *  set, and zero for items not in the set.
- *  This array is the same length as the provided probabilities array.
+ *  For example, 0.95 would represent the 95% credible set.
+ * @return {Number[]} An array with posterior probabilities (for the items in the credible set), and zero for all
+ *   other elements. This array is the same length as the provided probabilities array.
  */
 function findCredibleSet(probs, cutoff=0.95) {
     // Type checking
@@ -53,11 +51,11 @@ function findCredibleSet(probs, cutoff=0.95) {
 }
 
 /**
- * Given an array of probabilities, determine which elements of the array fall within the X% credible set, 
- * where X is the cutoff value. 
+ * Given an array of probabilities, determine which elements of the array fall within the X% credible set,
+ * where X is the cutoff value.
  *
- * Returns a boolean array, where true denotes membership in the credible set, false otherwise. 
- * 
+ * Returns a boolean array, where true denotes membership in the credible set, false otherwise.
+ *
  * This is a helper method used when visualizing the members of the credible set by raw membership.
  *
  * @param {Number[]} probs Calculated probabilities used to rank the credible set.
@@ -71,13 +69,14 @@ function markCredibleSetBoolean(probs, cutoff=0.95) {
 }
 
 /**
- * Given an array of probabilities, determine which elements fall in the X% credible set, then rescale
- * the probabilities within only the credible set to their total sum. 
- * 
- * Example for 95% credible set: [0.92, 0.06, 0.02] -> [0.938, 0.061, 0]. The first two elements here
- * belong to the credible set, the last element does not. 
+ * Visualization helper method for rescaling data to a predictable output range, eg when range for a color gradient
+ *   must be specified in advance.
  *
- * This is a helper method for visualizing the relative significance of contributions to the credible set.
+ * Given an array of probabilities, determine which elements fall in the X% credible set, then rescale
+ * the probabilities within only the credible set to their total sum.
+ *
+ * Example for 95% credible set: [0.92, 0.06, 0.02] -> [0.938, 0.061, 0]. The first two elements here
+ * belong to the credible set, the last element does not.
  *
  * @param {Number[]} probs Calculated probabilities used to rank the credible set.
  * @param {Number} [cutoff=0.95] Keep taking items until we have accounted for >= this fraction of the total probability

@@ -11,7 +11,7 @@
     "lint": "gulp lint",
     "test-browser": "gulp test-browser",
     "watch": "gulp watch",
-    "build": "gulp build",
+    "build": "gulp build && npm run docs",
     "docs": "jsdoc src/ README.md -d docs/",
     "coverage": "gulp coverage"
   },
