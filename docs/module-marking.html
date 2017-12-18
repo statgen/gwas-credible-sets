@@ -64,7 +64,7 @@
     
 
     
-    <h4 class="name" id="~findCredibleSet"><span class="type-signature">(inner) </span>findCredibleSet<span class="signature">(statistics, cutoff<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;Number>}</span></h4>
+    <h4 class="name" id="~findCredibleSet"><span class="type-signature">(inner) </span>findCredibleSet<span class="signature">(probs, cutoff<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;Number>}</span></h4>
     
 
     
@@ -72,8 +72,8 @@
 
 
 <div class="description">
-    Given a set of raw per-element score statistics, determine which contribute most to total posterior probability,
-and are thus members of the credible set.
+    Given an array of probabilities, determine which elements of the array fall within the X% credible set,
+  where X is the cutoff value.
 </div>
 
 
@@ -113,7 +113,7 @@ and are thus members of the credible set.
 
         <tr>
             
-                <td class="name"><code>statistics</code></td>
+                <td class="name"><code>probs</code></td>
             
 
             <td class="type">
@@ -141,7 +141,8 @@ and are thus members of the credible set.
                 </td>
             
 
-            <td class="description last">Calculated statistics used to rank the credible set (eg raw bayes factors)</td>
+            <td class="description last">Calculated probabilities used to rank the credible set. This method will normalize the
+  provided input to ensure that the values sum to 1.0.</td>
         </tr>
 
     
@@ -180,7 +181,8 @@ and are thus members of the credible set.
                 </td>
             
 
-            <td class="description last">Keep taking items until we have accounted for >= this fraction of the total probability</td>
+            <td class="description last">Keep taking items until we have accounted for >= this fraction of the total probability.
+ For example, 0.95 would represent the 95% credible set.</td>
         </tr>
 
     
@@ -221,7 +223,7 @@ and are thus members of the credible set.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marking.js.html">marking.js</a>, <a href="marking.js.html#line12">line 12</a>
+        <a href="marking.js.html">marking.js</a>, <a href="marking.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
@@ -249,8 +251,7 @@ and are thus members of the credible set.
         
 <div class="param-desc">
     An array with posterior probabilities (for the items in the credible set), and zero for all
-  other elements
- This array should be the same length as the provided statistic array
+  other elements. This array is the same length as the provided probabilities array.
 </div>
 
 
@@ -279,7 +280,7 @@ and are thus members of the credible set.
     
 
     
-    <h4 class="name" id="~markCredibleSetBoolean"><span class="type-signature">(inner) </span>markCredibleSetBoolean<span class="signature">(statistics, cutoff<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;Boolean>}</span></h4>
+    <h4 class="name" id="~markBoolean"><span class="type-signature">(inner) </span>markBoolean<span class="signature">(credibleSetMembers)</span><span class="type-signature"> &rarr; {Array.&lt;Boolean>}</span></h4>
     
 
     
@@ -287,9 +288,10 @@ and are thus members of the credible set.
 
 
 <div class="description">
-    Analyze a set of probabilities and return booleans indicating which items contribute to the credible set.
+    Given a numeric pre-calculated credible set, return an array of booleans where true
+  denotes membership in the credible set.
 
-This is a helper method for, eg, visualizing the members of the credible set by raw membership.
+This is a helper method used when visualizing the members of the credible set by raw membership.
 </div>
 
 
@@ -313,11 +315,7 @@ This is a helper method for, eg, visualizing the members of the credible set by 
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
-        
-        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -329,7 +327,7 @@ This is a helper method for, eg, visualizing the members of the credible set by 
 
         <tr>
             
-                <td class="name"><code>statistics</code></td>
+                <td class="name"><code>credibleSetMembers</code></td>
             
 
             <td class="type">
@@ -342,61 +340,11 @@ This is a helper method for, eg, visualizing the members of the credible set by 
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">Calculated statistics used to rank the credible set (eg raw bayes factors)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>cutoff</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    0.95
-                
-                </td>
-            
-
-            <td class="description last">Keep taking items until we have accounted for >= this fraction of the total probability</td>
+            <td class="description last">An array indicating contributions to the credible set, where non-members are
+ represented by some falsy value.</td>
         </tr>
 
     
@@ -437,7 +385,7 @@ This is a helper method for, eg, visualizing the members of the credible set by 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marking.js.html">marking.js</a>, <a href="marking.js.html#line58">line 58</a>
+        <a href="marking.js.html">marking.js</a>, <a href="marking.js.html#line64">line 64</a>
     </li></ul></dd>
     
 
@@ -464,8 +412,8 @@ This is a helper method for, eg, visualizing the members of the credible set by 
 
         
 <div class="param-desc">
-    An array of booleans identifying whether or not each item is in the credible set
- This array should be the same length as the provided statistics array
+    An array of booleans identifying whether or not each item is in the credible set.
+ This array is the same length as the provided credible set array.
 </div>
 
 
@@ -494,7 +442,7 @@ This is a helper method for, eg, visualizing the members of the credible set by 
     
 
     
-    <h4 class="name" id="~markCredibleSetScaled"><span class="type-signature">(inner) </span>markCredibleSetScaled<span class="signature">(statistics, cutoff<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;Number>}</span></h4>
+    <h4 class="name" id="~rescaleCredibleSet"><span class="type-signature">(inner) </span>rescaleCredibleSet<span class="signature">(credibleSetMembers)</span><span class="type-signature"> &rarr; {Array.&lt;Number>}</span></h4>
     
 
     
@@ -502,12 +450,15 @@ This is a helper method for, eg, visualizing the members of the credible set by 
 
 
 <div class="description">
-    Analyze a set of probabilities and return a fraction saying how much each item contributes to the credible set.
-  For example, if a single item accounts for 96% of total probabilities, then for the 95% credible set,
-  that item would be scaled to "1.0" (because it alone represents the entire credible set and then some).
+    Visualization helper method for rescaling data to a predictable output range, eg when range for a color gradient
+  must be specified in advance.
 
-This is a helper method for, eg, visualizing the relative significance of contributions to the credible set.
-  For example, when a gradient must be specified in advance and is not auto-determined by the range of the data.
+Given an array of probabilities for items in a credible set, rescale the probabilities within only the credible
+  set to their total sum.
+
+TODO: Better example?
+Example for 95% credible set: [0.92, 0.06, 0.02] -> [0.938, 0.061, 0]. The first two elements here
+belong to the credible set, the last element does not.
 </div>
 
 
@@ -531,11 +482,7 @@ This is a helper method for, eg, visualizing the relative significance of contri
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
-        
-        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -547,7 +494,7 @@ This is a helper method for, eg, visualizing the relative significance of contri
 
         <tr>
             
-                <td class="name"><code>statistics</code></td>
+                <td class="name"><code>credibleSetMembers</code></td>
             
 
             <td class="type">
@@ -560,61 +507,10 @@ This is a helper method for, eg, visualizing the relative significance of contri
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">Calculated statistics used to rank the credible set (eg raw bayes factors)</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>cutoff</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    0.95
-                
-                </td>
-            
-
-            <td class="description last">Keep taking items until we have accounted for >= this fraction of the total probability</td>
+            <td class="description last">Calculated probabilities used to rank the credible set.</td>
         </tr>
 
     
@@ -655,7 +551,7 @@ This is a helper method for, eg, visualizing the relative significance of contri
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marking.js.html">marking.js</a>, <a href="marking.js.html#line76">line 76</a>
+        <a href="marking.js.html">marking.js</a>, <a href="marking.js.html#line83">line 83</a>
     </li></ul></dd>
     
 
@@ -682,8 +578,8 @@ This is a helper method for, eg, visualizing the relative significance of contri
 
         
 <div class="param-desc">
-    An array of numbers representing the fraction of credible set probabilities this item accounts for.
- This array should be the same length as the provided statistics array
+    The fraction of credible set probabilities each item accounts for.
+ This array is the same length as the provided credible set.
 </div>
 
 
@@ -728,7 +624,7 @@ This is a helper method for, eg, visualizing the relative significance of contri
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Dec 14 2017 19:11:14 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Dec 18 2017 09:58:19 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -43,22 +43,48 @@
 
 
     <section>
-        <article><h1>credible-sets</h1><p>Summarize GWAS results</p>
+        <article><h2>gwas-credible-sets</h2><p>A package for calculating Bayes factors and credible sets from genome-wide association study (GWAS) results. </p>
 <p><a href="https://travis-ci.org/statgen/gwas-credible-sets"><img src="http://img.shields.io/travis/statgen/gwas-credible-sets.svg?style=flat" alt="Travis build status"></a>
-<a href="https://codeclimate.com/github/statgen/gwas-credible-sets"><img src="https://codeclimate.com/github/statgen/gwas-credible-sets/badges/gpa.svg" alt="Code Climate"></a>
-<a href="https://codeclimate.com/github/statgen/gwas-credible-sets"><img src="https://codeclimate.com/github/statgen/gwas-credible-sets/badges/coverage.svg" alt="Test Coverage"></a>
 <a href="https://david-dm.org/statgen/gwas-credible-sets"><img src="https://david-dm.org/statgen/gwas-credible-sets.svg" alt="Dependency Status"></a>
 <a href="https://david-dm.org/statgen/gwas-credible-sets#info=devDependencies"><img src="https://david-dm.org/statgen/gwas-credible-sets/dev-status.svg" alt="devDependency Status"></a></p>
-<h1>Development</h1><h2>Requirements</h2><p>This package has been developed and tested using node 8 LTS (Carbon).</p>
-<h2>Installation</h2><p>Install package requirements as follows:
-<code>npm install</code></p>
-<h2>Commands</h2><ul>
-<li><code>npm test</code></li>
-<li><code>npm run lint</code></li>
-<li><code>npm run watch</code></li>
-<li><code>npm run test-browser</code></li>
-<li><code>npm run build</code></li>
-<li><code>npm run coverage</code></li>
+<h2>Synopsis</h2><p>This package provides functions for calculating Bayes factors and credible sets using p-values from GWAS results. 
+These functions can be used separately, or combined with <a href="https://github.com/statgen/locuszoom">locuszoom.js</a> for interactive credible set visualization. </p>
+<p>Credible sets are currently calculated using the following procedure: </p>
+<ol>
+<li>For each variant, calculate a Bayes factor from the p-value (or -log10 p-value). </li>
+<li>Normalize each Bayes factor to the sum of all Bayes factors in a region to calculate the posterior probability 
+that a variant is causal. </li>
+<li>Identify which variants belong to a X% credible set given their posterior probabilities. </li>
+</ol>
+<p>In the future, additional scoring or annotation methods may be provided.</p>
+<h2>Usage</h2><h3>How to include in your project</h3><p>This package may be directly incorporated into other javascript projects as a module, or by including 
+<code>dist/gwas-credible-sets.min.js</code> directly into your page (as a standalone file, or via a CDN option such as unpkg). </p>
+<p><code>gwas-credible-sets</code> also supports several packaging environments and may be used in both client and server side 
+applications, including Node.js, ES6 modules, and Webpack. It may be installed from NPM:</p>
+<p><code>npm install --save gwas-credible-sets</code></p>
+<p>For information about performance impacts of client-side computation, 
+  see <a href="tests/timings/timings.md">timing and performance estimates</a>.</p>
+<h3>Sample credible set calculation</h3><p>The instructions below assume that the module is being sourced directly into a page:</p>
+<p><code>&lt;script src=&quot;https://cdn.example/gwas-credible-sets.min.js&quot; type=&quot;application/javascript&quot;&gt;&lt;/script&gt;</code></p>
+<p>The example below assumes that you are given an array of p-values, each representing a different data point. It 
+returns a set of booleans saying whether each data point is a member of the 95% credible set. </p>
+<pre class="prettyprint source lang-javascript"><code>    /// Calculate Bayes factors and process into a form that can be used for the credible set
+    var scores = gwasCredibleSets.scoring.bayesFactors(nlogpvals);
+    var posteriorProbabilities = gwasCredibleSets.scoring.normalizeProbabilities(scores);
+    // Identify the credible set and apply filters for visualization
+    var credibleSet = gwasCredibleSets.marking.findCredibleSet(posteriorProbabilities, 0.95);
+    var credibleSetBoolean = gwasCredibleSets.marking.markBoolean(credibleSet);</code></pre><p>The <code>marking</code> module contains several helper functions to control how the credible set is returned. Helper methods are 
+  provided to process the set members (posterior probabilities) in ways that support visualization needs. 
+  See full documentation for details. </p>
+<h2>Development</h2><h3>Requirements</h3><p>This package has been developed and tested using Node.js 8 LTS (Carbon).</p>
+<p>If you would like to make changes to the core functionality within this module for development, install package 
+requirements as follows:</p>
+<p><code>npm install</code> </p>
+<h3>Useful Commands</h3><p>The following commands are particularly useful during development </p>
+<ul>
+<li><code>npm test</code>: run unit tests and exit</li>
+<li><code>npm run watch</code>: auto-run tests whenever code changes</li>
+<li><code>npm run build</code>: build <code>dist/</code> files and update documentation</li>
 </ul></article>
     </section>
 
@@ -76,7 +102,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Dec 14 2017 19:11:14 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Dec 18 2017 09:58:19 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>
