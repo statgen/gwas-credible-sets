@@ -1,0 +1,1 @@
+../../../test/timings/profile-method.js
