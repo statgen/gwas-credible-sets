@@ -37,7 +37,7 @@ function lint(files) {
 }
 
 function lintSrc() {
-    return lint('src/**/*.js');
+    return lint('src/app/**/*.js');
 }
 
 function lintTest() {
@@ -49,7 +49,7 @@ function lintGulpfile() {
 }
 
 function build() {
-    return gulp.src(path.join('src', config.entryFileName))
+    return gulp.src(path.join('src/app', config.entryFileName))
         .pipe(webpackStream({
             output: {
                 filename: `${exportFileName}.js`,
@@ -98,7 +98,7 @@ function test() {
 
 function coverage(done) {
     _registerBabel();
-    gulp.src(['src/**/*.js'])
+    gulp.src(['src/app/**/*.js'])
         .pipe($.istanbul({
             instrumenter: Instrumenter,
             includeUntested: true
@@ -111,7 +111,7 @@ function coverage(done) {
         });
 }
 
-const watchFiles = ['src/**/*', 'test/**/*', 'package.json', '**/.eslintrc'];
+const watchFiles = ['src/app/**/*', 'test/**/*', 'package.json', '**/.eslintrc'];
 
 // Run the headless unit tests as you make changes.
 function watch() {
@@ -184,7 +184,7 @@ gulp.task('lint-gulpfile', lintGulpfile);
 gulp.task('lint', ['lint-src', 'lint-test', 'lint-gulpfile']);
 
 // Build two versions of the library
-gulp.task('build', ['lint', 'clean'], build);
+gulp.task('build', ['test', 'clean'], build);
 
 // Lint and run our tests
 gulp.task('test', ['lint'], test);

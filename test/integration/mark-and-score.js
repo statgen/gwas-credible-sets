@@ -1,5 +1,5 @@
-import { bayesFactors, normalizeProbabilities } from '../../src/scoring';
-import { findCredibleSet, markBoolean } from '../../src/marking';
+import { bayesFactors, normalizeProbabilities } from '../../src/app/scoring';
+import { findCredibleSet, markBoolean } from '../../src/app/marking';
 
 describe('Workflow for scoring a credible set based on pvalues', () => {
     it('should correctly mark the credible set for the default cutoff', () => {

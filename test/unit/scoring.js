@@ -1,4 +1,4 @@
-import { bayesFactors, _nlogp_to_z2 } from '../../src/scoring';
+import { bayesFactors, _nlogp_to_z2 } from '../../src/app/scoring';
 
 function _runScenarios (scenarios, method) {
     // Helper method for running tests

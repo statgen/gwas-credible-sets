@@ -1,4 +1,4 @@
-import { ninv } from '../../src/stats';
+import { ninv } from '../../src/app/stats';
 
 function _runScenarios (scenarios, method) {
     // Helper method for running tests

@@ -1,4 +1,4 @@
-import { findCredibleSet, markBoolean, rescaleCredibleSet } from '../../src/marking';
+import { findCredibleSet, markBoolean, rescaleCredibleSet } from '../../src/app/marking';
 
 describe('marking module', () => {
     describe('findCredibleSet', function() {
