@@ -1,4 +1,4 @@
-import { findCredibleSet, markCredibleSetBoolean, markCredibleSetScaled } from '../../src/marking';
+import { findCredibleSet, markBoolean, rescaleCredibleSet } from '../../src/app/marking';
 
 describe('marking module', () => {
     describe('findCredibleSet', function() {
@@ -13,7 +13,7 @@ describe('marking module', () => {
                 [[], 1.0],
                 ['not an array', 1.0]
             ];
-            const badStatisticsMessage = /Statistics must be a non-empty array/;
+            const badStatisticsMessage = /Probs must be a non-empty array/;
             badStatisticsValues.forEach(args => {
                 assert.throws(
                     () => findCredibleSet(...args),
@@ -24,7 +24,7 @@ describe('marking module', () => {
             });
             assert.throws(
                 () => findCredibleSet([0, 0, 0]),
-                /Sum of provided statistics must be > 0/,
+                /Sum of provided probabilities must be > 0/,
                 null,
                 'Should avoid division by zero'
             );
@@ -65,53 +65,56 @@ describe('marking module', () => {
             );
         });
     });
-    describe('markCredibleSetBoolean', function () {
+    it('should flag at least one item as in the set, even if that item alone exceeds the entire cutoff', () => {
+        // When one item accounts for the entire variation
+        let statistics = [0, .99, 0];
+        let credibleSet = findCredibleSet(statistics, 0.95);
+        let setCount = credibleSet
+            .filter(item => (item !== 0))
+            .length;
+        assert.equal(setCount, 1, 'Only one result should be marked as in credible set');
+        assert.isTrue(credibleSet[1] !== 0);
+
+        // When one item accounts for more than the cutoff, though not 100% of it
+        statistics = [0, .99, .01];
+        credibleSet = findCredibleSet(statistics, 0.95);
+        setCount = credibleSet
+            .filter(item => item)
+            .length;
+        assert.equal(setCount, 1, 'Only one result should be marked as in credible set');
+        assert.isTrue(credibleSet[1] !== 0);
+    });
+    describe('markBoolean', function () {
         it('should return an array of booleans', () => {
-            const statistics = [1, 7, 5, 3];
-            const result = markCredibleSetBoolean(statistics);
+            const credibleSet = [.1, .6, 0, .3];
+            const result = markBoolean(credibleSet);
 
             assert.isArray(result);
-            assert.equal(result.length, statistics.length);
+            assert.equal(result.length, credibleSet.length);
             assert.isTrue(result.every(item => typeof item === 'boolean'));
         });
-        it('should flag at least one item as in the set, even if that item alone exceeds the entire cutoff', () => {
-            // When one item accounts for the entire variation
-            let statistics = [0, 2, 0];
-            let result = markCredibleSetBoolean(statistics);
-            let numberTrue = result
-                .filter(item => (item===true))
-                .length;
-            assert.equal(numberTrue, 1, 'Only one result should be marked as in credible set');
-            assert.isTrue(result[1]);
-
-            // When one item accounts for more than the cutoff, though not 100% of it
-            statistics = [0, 99, 1];
-            result = markCredibleSetBoolean(statistics);
-            numberTrue = result
-                .filter(item => (item === true))
-                .length;
-            assert.equal(numberTrue, 1, 'Only one result should be marked as in credible set');
-            assert.isTrue(result[1]);
-        });
         it('should correctly identify the credible set', () => {
-            const scores = [.02, .05, 15, .01, 12, .03, 7, 6.9];
+            const statistics = [.02, .05, 15, .01, 12, .03, 7, 6.9];
+            const credibleSet = findCredibleSet(statistics);
             assert.sameOrderedMembers(
-                markCredibleSetBoolean(scores),
+                markBoolean(credibleSet),
                 [false, false, true, false, true, false, true, true]
             );
         });
         it('should give a smaller credible set when cutoff is lower', () => {
-            const scores = [.02, .05, 15, .01, 12, .03, 7, 6.9];
+            const statistics = [.02, .05, 15, .01, 12, .03, 7, 6.9];
+            const credibleSet = findCredibleSet(statistics, 0.80);
             assert.sameOrderedMembers(
-                markCredibleSetBoolean(scores, 0.80),
+                markBoolean(credibleSet),
                 [false, false, true, false, true, false, true, false]
             );
         });
     });
-    describe('markCredibleSetScaled', function() {
+    describe('rescaleCredibleSet', function() {
         it('should correctly identify the credible set and scale results', () => {
             const scores = [.02, .05, 15, .01, 12, .03, 7, 6.9];
-            const result = markCredibleSetScaled(scores);
+            const credibleSet = findCredibleSet(scores);
+            const result = rescaleCredibleSet(credibleSet);
             assert.sameOrderedMembers(
                 result,
                 [

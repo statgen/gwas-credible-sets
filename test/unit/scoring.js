@@ -1,4 +1,4 @@
-import { minKodos, _nlogp_to_z2 } from '../../src/scoring';
+import { bayesFactors, _nlogp_to_z2 } from '../../src/app/scoring';
 
 function _runScenarios (scenarios, method) {
     // Helper method for running tests
@@ -41,10 +41,10 @@ describe('scoring module', () => {
             });
         })
     });
-    describe('minKodos scoring function', () => {
+    describe('bayesFactors scoring function', () => {
         it('should validate arguments', () => {
             assert.throws(
-                () => minKodos('not array'),
+                () => bayesFactors('not array'),
                 'Must provide a non-empty array of pvalues'
             )
         });
@@ -54,34 +54,43 @@ describe('scoring module', () => {
 
             // TODO: Fails in safari browser test runner due to floating point differences. This is difficult to
             //  coerce with a single closeTo tolerance due to the range of exponents involved
-            const nlogpvals = [.004, 8, 100, 155];
+            const nlogpvals = [.004, 8, 100, 308];
             assert.sameOrderedMembers(
-                minKodos(nlogpvals),
-                [1.000132045040125, 183136585867934.2, 1.3962902790014125e+197, 8.981883580042658e+306]
+                bayesFactors(nlogpvals),
+                [1.0000660203407197, 13532796.675777487, 3.736696775229979e+98, 1.993909075987322e+306]
             );
         });
         it('should return valid results (and apply a cap if z2 would otherwise be too large)', () => {
-            // exp(Z^2) blows up when Z^2 > 709, which corresponds to -logP ~= 155. If the set contains one or more
-            //   pvalues above this cutoff, expect the result of this method to reduce each term to below a cap
-            // (Even terms that did not exceed the cap are reduced in a consistent fashion, so they are calculated
-            //   differently than if the cap is not present)
+            // exp(x) blows up when x > 709, which corresponds to Z**2 ~ 1418, or -logP ~= 309. If the set contains
+            //   one or more pvalues above this cutoff, expect the result of this method to reduce each term to below
+            //   a cap (Even terms that did not exceed the cap are reduced in a consistent fashion, so they are
+            //   calculated differently than if the cap is not present)
 
             // These "Actual" values are drawn directly from the output of this method
-            const nlogpvals = [.004, 8, 100, 155, 156];
+            const nlogpvals = [.004, 8, 100, 308, 310];
             assert.sameOrderedMembers(
-                minKodos(nlogpvals),
-                [0.03388377603493786, 6204539780647.959, 4.730534065783949e+195, 3.0429995029890414e+305, 3.023383144276055e+307]
+                bayesFactors(nlogpvals),
+                [0.15260371129827402, 2065018.6637328179, 5.701961513521979e+97, 3.0425783778086066e+305, 3.023383144276055e+307]
             );
 
-            // TODO: For a truly ginormous range, the cap causes some terms to be rendered exp(-value) and they go to zero.
-            //      Is this the desired behavior?
-            //      Note that our use case is credible set calculations, so when scores were ranked, the part that
-            //      survived the cap really would probably dominate anyway
+            // For a truly ginormous range, the cap causes some z2/2 terms to become negative, so the calc
+            //   becomes exp(-value) and those bayes factors go to zero.
+            // Is this the desired behavior?
+            //   Note that our use case is credible set calculations, so when scores were ranked, the part that
+            //  survived the cap really would probably dominate anyway
             const reallybigvals = [2525, 3535, 4545, 5555, 6565, 7510, 8510, 9595];
             assert.sameOrderedMembers(
-                minKodos(reallybigvals),
+                bayesFactors(reallybigvals),
                 [0, 0, 0, 0, 0, 0, 0, 3.023383144276055e+307]
             );
+        });
+        it('should be able to return raw values, like infinity, if the cap is not applied', function() {
+            const nlogpvals = [-Math.log10(.05), -Math.log10(1e-8), 310];
+            const withCap = bayesFactors(nlogpvals, true);
+            const noCap = bayesFactors(nlogpvals, false);
+
+            assert.notInclude(withCap, Infinity, 'Capped calculations should not be able to return infinity');
+            assert.include(noCap, Infinity, 'Uncapped calculations should be able to return infinity');
         });
     });
 });
