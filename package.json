@@ -1,6 +1,6 @@
 {
   "name": "gwas-credible-sets",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Summarize GWAS results",
   "engines": {
     "node": ">=6.12.0"
@@ -26,6 +26,9 @@
     "credible sets"
   ],
   "author": "Andy Boughton <abought@umich.edu>",
+  "contributors": [
+    "Ryan Welch"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/statgen/gwas-credible-sets/issues"
