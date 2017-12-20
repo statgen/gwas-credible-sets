@@ -402,7 +402,6 @@ function markBoolean(credibleSetMembers) {
  * Given an array of probabilities for items in a credible set, rescale the probabilities within only the credible
  *   set to their total sum.
  *
- * TODO: Better example?
  * Example for 95% credible set: [0.92, 0.06, 0.02] -> [0.938, 0.061, 0]. The first two elements here
  * belong to the credible set, the last element does not.
  *
