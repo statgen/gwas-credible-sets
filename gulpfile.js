@@ -181,22 +181,22 @@ gulp.task('lint-test', lintTest);
 gulp.task('lint-gulpfile', lintGulpfile);
 
 // Lint everything
-gulp.task('lint', ['lint-src', 'lint-test', 'lint-gulpfile']);
-
-// Build two versions of the library
-gulp.task('build', ['test', 'clean'], build);
+gulp.task('lint', gulp.parallel('lint-src', 'lint-test', 'lint-gulpfile'));
 
 // Lint and run our tests
-gulp.task('test', ['lint'], test);
+gulp.task('test', gulp.series('lint', test));
+
+// Build two versions of the library
+gulp.task('build', gulp.series('test', 'clean', build));
 
 // Set up coverage and run tests
-gulp.task('coverage', ['lint'], coverage);
+gulp.task('coverage', gulp.series('lint', coverage));
 
 // Set up a livereload environment for our spec runner `test/runner.html`
-gulp.task('test-browser', ['lint', 'clean-tmp'], testBrowser);
+gulp.task('test-browser', gulp.series('lint', 'clean-tmp', testBrowser));
 
 // Run the headless unit tests as you make changes.
 gulp.task('watch', watch);
 
 // An alias of test
-gulp.task('default', ['test']);
+gulp.task('default', gulp.series('test'));
