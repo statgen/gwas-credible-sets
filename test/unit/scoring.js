@@ -28,7 +28,7 @@ describe('scoring module', () => {
             // For exact method, the actual values are based on comparison to same calculation in R
             const scenarios = [
                 [ -Math.log10(.99), 0.00015708785790970235],
-                [ -Math.log10(.05), 3.8414588206941245],
+                [ -Math.log10(.05), 3.8414588206941263],
                 [ -Math.log10(1e-8), 32.841253361236781],
                 [ -Math.log10(1e-299), 1369.27081130834995] // Just below the approximation cutoff
             ];
