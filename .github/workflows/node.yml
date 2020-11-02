@@ -38,6 +38,6 @@ jobs:
       # The build command automatically runs tests
       run: |
         npm ci
-        npm run build
+        npx gulp build
       env:
         CI: true
