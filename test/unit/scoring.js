@@ -33,9 +33,10 @@ describe('scoring module', () => {
                 [ -Math.log10(1e-299), 1369.27081130834995] // Just below the approximation cutoff
             ];
             scenarios.forEach(([pval, expectedZ]) => {
-                assert.equal(
+                assert.approximately(
                     _nlogp_to_z2(pval),
                     expectedZ,
+                    1e-6,
                     `p-value ${pval} did not produce the expected result`
                 );
             });

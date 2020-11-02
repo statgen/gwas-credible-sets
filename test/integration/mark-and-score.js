@@ -60,7 +60,10 @@ describe('Workflow for scoring a credible set based on pvalues', () => {
         const actualPosterior = normalizeProbabilities(scores);
         const credibleSet = findCredibleSet(scores, 0.95);
         const actualMarkers = markBoolean(credibleSet);
-        assert.sameOrderedMembers(actualPosterior, expectedPosteriorProbabilities, 'Expected posterior probabilities do not match');
+
+        actualPosterior.forEach((item, index) => {
+            assert.approximately(actualPosterior[index], expectedPosteriorProbabilities[index], 1e-6, 'Expected posterior probabilities do not match');
+        });
         assert.sameOrderedMembers(actualMarkers, expectedSetMembers, 'Expected credible set members do not match');
     });
 });
